@@ -28,7 +28,7 @@ pub struct ConfigurationStore {
     configurations: Vec<Configuration>,
 
     /// Name of the active configuration
-    active: String
+    active: String,
 }
 
 impl ConfigurationStore {
@@ -73,7 +73,7 @@ impl ConfigurationStore {
         Ok(ConfigurationStore {
             location,
             configurations,
-            active
+            active,
         })
     }
 
@@ -84,6 +84,6 @@ impl ConfigurationStore {
 
     /// Check if the given configuration is active
     pub fn is_active(&self, name: &str) -> bool {
-        &self.active == name
+        name == self.active
     }
 }

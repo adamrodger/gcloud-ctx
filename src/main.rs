@@ -1,8 +1,9 @@
-mod configuration;
+mod arguments;
 mod commands;
+mod configuration;
 mod error;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    commands::list()?;
+    arguments::run()?;
     Ok(())
 }
