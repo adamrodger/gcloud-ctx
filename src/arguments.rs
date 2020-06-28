@@ -1,23 +1,22 @@
-use crate::{commands, error::Error};
+use crate::commands;
+use anyhow::Result;
 use clap::Clap;
 
 /// Run the application using the command line arguments
-pub fn run() -> Result<(), Error> {
+pub fn run() -> Result<()> {
     let opts: Opts = Opts::parse();
 
     if let Some(name) = opts.context {
         // shortcut for activate
         commands::activate(&name)?;
         return Ok(());
-    }
-    else if let Some(subcmd) = opts.subcmd {
+    } else if let Some(subcmd) = opts.subcmd {
         match subcmd {
             SubCommand::Activate { name } => commands::activate(&name)?,
             SubCommand::Current => commands::current()?,
             SubCommand::List => commands::list()?,
         }
-    }
-    else {
+    } else {
         commands::current()?;
     }
 

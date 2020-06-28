@@ -1,29 +1,20 @@
-use std::{fmt::Display, io};
+use std::path::PathBuf;
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum Error {
-    ConfigurationStoreNotFound,
-    UnableToReadConfigurations,
-    UnknownConfiguration,
-    Io(io::Error),
-}
+    #[error("Unable to locate user configuration directory")]
+    ConfigurationDirectoryNotFound,
 
-impl std::error::Error for Error {}
+    #[error("Unable to find the gcloud configuration directory at {0}\n\nIs gcloud installed?")]
+    ConfigurationStoreNotFound(PathBuf),
 
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(&self, f)
-    }
-}
+    #[error("Unable to find any gcloud configurations in {0}")]
+    NoConfigurationsFound(PathBuf),
 
-impl From<io::Error> for Error {
-    fn from(e: io::Error) -> Self {
-        Error::Io(e)
-    }
-}
+    #[error("Unable to load gcloud configuration at {0}")]
+    UnableToReadConfiguration(PathBuf),
 
-impl From<glob::GlobError> for Error {
-    fn from(_: glob::GlobError) -> Self {
-        Error::UnableToReadConfigurations
-    }
+    #[error("Unable to find configuration '{0}'")]
+    UnknownConfiguration(String),
 }

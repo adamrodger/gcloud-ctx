@@ -1,7 +1,8 @@
-use crate::{configuration::ConfigurationStore, error::Error};
+use crate::configuration::ConfigurationStore;
+use anyhow::Result;
 
 /// List the available configurations with an indicator of the active one
-pub fn list() -> Result<(), Error> {
+pub fn list() -> Result<()> {
     let store = ConfigurationStore::new()?;
 
     for config in store.configurations() {
@@ -14,7 +15,7 @@ pub fn list() -> Result<(), Error> {
 }
 
 /// Activate the given configuration by name
-pub fn activate(name: &str) -> Result<(), Error> {
+pub fn activate(name: &str) -> Result<()> {
     let mut store = ConfigurationStore::new()?;
     store.activate(name)?;
 
@@ -24,7 +25,7 @@ pub fn activate(name: &str) -> Result<(), Error> {
 }
 
 /// Show the current activated configuration
-pub fn current() -> Result<(), Error> {
+pub fn current() -> Result<()> {
     let store = ConfigurationStore::new()?;
     println!("{}", store.active());
     Ok(())
