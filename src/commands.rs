@@ -22,3 +22,10 @@ pub fn activate(name: &str) -> Result<(), Error> {
 
     Ok(())
 }
+
+/// Show the current activated configuration
+pub fn current() -> Result<(), Error> {
+    let store = ConfigurationStore::new()?;
+    println!("{}", store.active());
+    Ok(())
+}

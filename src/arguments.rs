@@ -12,9 +12,13 @@ pub fn run() -> Result<(), Error> {
     }
     else if let Some(subcmd) = opts.subcmd {
         match subcmd {
-            SubCommand::Activate(args) => commands::activate(&args.name)?,
-            SubCommand::List(_) => commands::list()?,
+            SubCommand::Activate { name } => commands::activate(&name)?,
+            SubCommand::Current => commands::current()?,
+            SubCommand::List => commands::list()?,
         }
+    }
+    else {
+        commands::current()?;
     }
 
     Ok(())
@@ -32,17 +36,15 @@ pub struct Opts {
 
 #[derive(Clap)]
 enum SubCommand {
-    Activate(Activate),
-    List(List),
-}
+    /// Activate a configuration by name
+    Activate {
+        /// Name of the configuration to activate
+        name: String,
+    },
 
-#[derive(Clap)]
-/// Activate a configuration
-struct Activate {
-    /// Name of the configuration to activate
-    name: String,
-}
+    /// Show the current configuration
+    Current,
 
-/// List all available configurations
-#[derive(Clap)]
-struct List {}
+    /// List all available configurations
+    List,
+}

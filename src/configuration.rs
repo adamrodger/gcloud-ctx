@@ -77,6 +77,11 @@ impl ConfigurationStore {
         })
     }
 
+    /// Get the name of the currently active configuration
+    pub fn active(&self) -> &str {
+        &self.active
+    }
+
     /// Get the collection of currently available configurations
     pub fn configurations(&self) -> &[Configuration] {
         &self.configurations
