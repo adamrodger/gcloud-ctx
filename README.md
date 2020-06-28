@@ -1,6 +1,6 @@
 # gctx
 
-Manage [Google Cloud Project](https://cloud.google.com/) `gcloud` configurations easily and quickly
+Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
 ## Motivation
 
@@ -42,23 +42,23 @@ cargo install gctx
 **Note:** Usage is currently entirely TBD
 
 ```bash
-# switch to another configuration
-gctx another-name
-
-# or to explicitly switch, e.g. if your configuration name clashes with a gctx command
-gctx activate my-project
-
 # show the current configuration (useful for adding to default prompt)
-gctx
 gctx current
-
-# show the properties of a configuration (like gcloud config confgurations describe)
-# defaults to the current configuration
-gctx describe
-gctx describe other-name
+# or shorthand, just omit current
+gctx
 
 # list all configurations
 gctx list
+
+# activate a different configuration
+gctx my-config
+# or to explicitly activate, e.g. if your configuration name clashes with a gctx command
+gctx activate my-config
+
+# show the properties of a configuration (like gcloud config configurations describe)
+# defaults to the current configuration
+gctx describe
+gctx describe other-name
 
 # rename a configuration
 gctx rename old-name new-name
