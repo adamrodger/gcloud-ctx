@@ -4,6 +4,7 @@ use std::{fmt::Display, io};
 pub enum Error {
     ConfigurationStoreNotFound,
     UnableToReadConfigurations,
+    UnknownConfiguration,
     Io(io::Error),
 }
 

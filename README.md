@@ -49,6 +49,7 @@ gctx another-name
 gctx activate my-project
 
 # show the current configuration (useful for adding to default prompt)
+gctx
 gctx current
 
 # show the properties of a configuration (like gcloud config confgurations describe)

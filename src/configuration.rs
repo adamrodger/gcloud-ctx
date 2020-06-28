@@ -83,7 +83,23 @@ impl ConfigurationStore {
     }
 
     /// Check if the given configuration is active
-    pub fn is_active(&self, name: &str) -> bool {
-        name == self.active
+    pub fn is_active(&self, configuration: &Configuration) -> bool {
+        configuration.name == self.active
+    }
+
+    /// Activate a configuration by name
+    pub fn activate(&mut self, name: &str) -> Result<(), Error> {
+        let configuration = self
+            .configurations
+            .iter()
+            .find(|&c| c.name == name)
+            .ok_or(Error::UnknownConfiguration)?;
+
+        let path = self.location.join("active_config");
+        std::fs::write(path, &configuration.name)?;
+
+        self.active = configuration.name.to_owned();
+
+        Ok(())
     }
 }
