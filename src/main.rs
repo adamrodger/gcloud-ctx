@@ -1,10 +1,8 @@
-use configuration::ConfigurationStore;
-
 mod configuration;
+mod commands;
 mod error;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let store = ConfigurationStore::new()?;
-    println!("{:?}", store);
+    commands::list()?;
     Ok(())
 }

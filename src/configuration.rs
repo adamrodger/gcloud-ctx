@@ -11,6 +11,13 @@ pub struct Configuration {
     path: PathBuf,
 }
 
+impl Configuration {
+    /// Name of the configuration
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
 #[derive(Debug)]
 /// Represents the store of gcloud configurations
 pub struct ConfigurationStore {
@@ -19,6 +26,9 @@ pub struct ConfigurationStore {
 
     /// Available configurations
     configurations: Vec<Configuration>,
+
+    /// Name of the active configuration
+    active: String
 }
 
 impl ConfigurationStore {
@@ -52,14 +62,28 @@ impl ConfigurationStore {
             })
             .collect::<Result<Vec<Configuration>, Error>>()?;
 
+        let active = location.join("active_config");
+
+        if !(active.exists() && active.is_file()) {
+            return Err(Error::ConfigurationStoreNotFound);
+        }
+
+        let active = std::fs::read_to_string(active)?;
+
         Ok(ConfigurationStore {
             location,
             configurations,
+            active
         })
     }
 
     /// Get the collection of currently available configurations
     pub fn configurations(&self) -> &[Configuration] {
         &self.configurations
+    }
+
+    /// Check if the given configuration is active
+    pub fn is_active(&self, name: &str) -> bool {
+        &self.active == name
     }
 }
