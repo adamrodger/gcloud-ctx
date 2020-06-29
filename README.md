@@ -1,4 +1,4 @@
-# gctx
+# `gctx` - A `gcloud` configuration utility
 
 Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
