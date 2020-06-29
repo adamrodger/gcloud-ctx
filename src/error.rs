@@ -9,6 +9,9 @@ pub enum Error {
     #[error("Unable to find the gcloud configuration directory at {0}\n\nIs gcloud installed?")]
     ConfigurationStoreNotFound(PathBuf),
 
+    #[error("A configuration named '{0}' already exists")]
+    ExistingConfiguration(String),
+
     #[error("Unable to find any gcloud configurations in {0}")]
     NoConfigurationsFound(PathBuf),
 

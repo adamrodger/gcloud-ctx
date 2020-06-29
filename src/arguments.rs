@@ -15,6 +15,7 @@ pub fn run() -> Result<()> {
             SubCommand::Activate { name } => commands::activate(&name)?,
             SubCommand::Current => commands::current()?,
             SubCommand::List => commands::list()?,
+            SubCommand::Rename { old_name, new_name } => commands::rename(&old_name, &new_name)?,
         }
     } else {
         commands::current()?;
@@ -26,7 +27,7 @@ pub fn run() -> Result<()> {
 /// gcloud configuration manager
 #[derive(Clap)]
 pub struct Opts {
-    /// Switch to this context (shorthand for activate)
+    /// Switch to this context (shorthand for activate, ignores subsequent arguments)
     context: Option<String>,
 
     #[clap(subcommand)]
@@ -46,4 +47,13 @@ enum SubCommand {
 
     /// List all available configurations
     List,
+
+    /// Rename a configuration
+    Rename {
+        /// Name of an existing configuration
+        old_name: String,
+
+        /// New name
+        new_name: String,
+    },
 }

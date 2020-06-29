@@ -30,3 +30,22 @@ pub fn current() -> Result<()> {
     println!("{}", store.active());
     Ok(())
 }
+
+/// Rename a configuration
+pub fn rename(old_name: &str, new_name: &str) -> Result<()> {
+    let mut store = ConfigurationStore::new()?;
+    store.rename(old_name, new_name)?;
+
+    println!(
+        "Successfully renamed configuration '{}' to '{}'",
+        old_name, new_name
+    );
+
+    if let Some(configuration) = store.find_by_name(new_name) {
+        if store.is_active(configuration) {
+            println!("The configuration '{}' is now active", new_name);
+        }
+    }
+
+    Ok(())
+}
