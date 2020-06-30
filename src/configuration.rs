@@ -1,5 +1,6 @@
 use crate::error::Error;
 use anyhow::{bail, Context, Result};
+use ini::Ini;
 use regex::Regex;
 use std::{cmp::Ordering, collections::HashMap, fs, path::PathBuf};
 
@@ -39,6 +40,12 @@ impl PartialEq for Configuration {
 }
 
 impl Eq for Configuration {}
+
+/// Represents a single configuration property
+pub struct ConfigurationProperty {
+    pub key: String,
+    pub value: String,
+}
 
 #[derive(Debug)]
 /// Represents the store of gcloud configurations
@@ -183,6 +190,26 @@ impl ConfigurationStore {
 
         let new_value = self.configurations.get(new_name).unwrap();
         Ok(&new_value)
+    }
+
+    /// Describe all the properties in the given configuration
+    pub fn describe(&self, name: &str) -> Result<Vec<ConfigurationProperty>> {
+        let configuration = self.find_by_name(name).ok_or(Error::UnknownConfiguration(name.to_owned()))?;
+        let ini_file = Ini::load_from_file(&configuration.path).context("Describing configuration")?;
+        let mut properties = Vec::new();
+
+        for section in ini_file.iter() {
+            if let Some(header) = section.0 {
+                for property in section.1.iter() {
+                    properties.push(ConfigurationProperty {
+                        key: format!("{}/{}", header, property.0),
+                        value: property.1.to_owned(),
+                    });
+                }
+            }
+        }
+
+        Ok(properties)
     }
 
     /// Find a configuration by name

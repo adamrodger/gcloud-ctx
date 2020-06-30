@@ -31,6 +31,18 @@ pub fn current() -> Result<()> {
     Ok(())
 }
 
+/// Describe all the properties in the given configuration
+pub fn describe(name: &str) -> Result<()> {
+    let store = ConfigurationStore::new()?;
+    let properties = store.describe(name)?;
+
+    for property in properties {
+        println!("{} = {}", property.key, property.value);
+    }
+
+    Ok(())
+}
+
 /// Rename a configuration
 pub fn rename(old_name: &str, new_name: &str) -> Result<()> {
     let mut store = ConfigurationStore::new()?;

@@ -14,6 +14,7 @@ pub fn run() -> Result<()> {
         match subcmd {
             SubCommand::Activate { name } => commands::activate(&name)?,
             SubCommand::Current => commands::current()?,
+            SubCommand::Describe { name } => commands::describe(&name)?,
             SubCommand::List => commands::list()?,
             SubCommand::Rename { old_name, new_name } => commands::rename(&old_name, &new_name)?,
         }
@@ -39,6 +40,12 @@ enum SubCommand {
     /// Activate a configuration by name
     Activate {
         /// Name of the configuration to activate
+        name: String,
+    },
+
+    /// Describe all the properties in a configuration
+    Describe {
+        /// Name of the configuration
         name: String,
     },
 
