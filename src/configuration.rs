@@ -1,5 +1,6 @@
 use crate::error::Error;
 use anyhow::{bail, Context, Result};
+use regex::Regex;
 use std::{cmp::Ordering, collections::HashMap, fs, path::PathBuf};
 
 #[derive(Debug, Clone)]
@@ -68,6 +69,7 @@ impl ConfigurationStore {
             bail!(Error::ConfigurationStoreNotFound(configurations_path));
         }
 
+        let file_name_regex = Regex::new(r"^config_[a-zA-Z0-9]+$").unwrap();
         let mut configurations: HashMap<String, Configuration> = HashMap::new();
 
         for file in fs::read_dir(&configurations_path)? {
@@ -83,7 +85,7 @@ impl ConfigurationStore {
                 None => continue, // ignore files that aren't valid utf8
             };
 
-            if !name.starts_with("config_") {
+            if !file_name_regex.is_match(name) {
                 continue;
             }
 
@@ -152,6 +154,10 @@ impl ConfigurationStore {
 
         if self.configurations.contains_key(new_name) {
             bail!(Error::ExistingConfiguration(new_name.to_owned()));
+        }
+
+        if !Regex::new(r"^[a-zA-Z0-9]+$").unwrap().is_match(new_name) {
+            bail!(Error::InvalidName(new_name.to_owned()));
         }
 
         let (active, new_value) = {

@@ -12,6 +12,9 @@ pub enum Error {
     #[error("A configuration named '{0}' already exists")]
     ExistingConfiguration(String),
 
+    #[error("'{0}' is invalid. Configuration names must only contain ASCII letters and numbers")]
+    InvalidName(String),
+
     #[error("Unable to find any gcloud configurations in {0}")]
     NoConfigurationsFound(PathBuf),
 
