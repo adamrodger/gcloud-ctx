@@ -1,6 +1,6 @@
 use crate::error::Error;
-use anyhow::{anyhow, bail, Context, Result};
-use std::{cmp::Ordering, collections::HashMap, convert::TryFrom, path::PathBuf};
+use anyhow::{bail, Context, Result};
+use std::{cmp::Ordering, collections::HashMap, fs, path::PathBuf};
 
 #[derive(Debug, Clone)]
 /// Represents a gcloud named configuration
@@ -39,24 +39,6 @@ impl PartialEq for Configuration {
 
 impl Eq for Configuration {}
 
-impl TryFrom<PathBuf> for Configuration {
-    type Error = anyhow::Error;
-
-    fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
-        let name = value
-            .file_name()
-            .ok_or_else(|| Error::UnableToReadConfiguration(value.clone()))
-            .context("Parsing configuration names")?
-            .to_str()
-            .ok_or_else(|| Error::UnableToReadConfiguration(value.clone()))
-            .context("Converting configuration names")?;
-
-        let name = name.trim_start_matches("config_").to_owned();
-
-        Ok(Configuration { name, path: value })
-    }
-}
-
 #[derive(Debug)]
 /// Represents the store of gcloud configurations
 pub struct ConfigurationStore {
@@ -73,42 +55,59 @@ pub struct ConfigurationStore {
 impl ConfigurationStore {
     /// Opens the configuration store using the OS-specific default location
     pub fn new() -> Result<Self> {
-        let location = dirs::config_dir().ok_or(Error::ConfigurationDirectoryNotFound)?;
-        let location = location.join("gcloud");
+        let gcloud_path = dirs::config_dir().ok_or(Error::ConfigurationDirectoryNotFound)?;
+        let gcloud_path = gcloud_path.join("gcloud");
 
-        if !(location.exists() && location.is_dir()) {
-            bail!(Error::ConfigurationStoreNotFound(location));
+        if !gcloud_path.is_dir() {
+            bail!(Error::ConfigurationStoreNotFound(gcloud_path));
         }
 
-        let configurations_glob = location.join("configurations").join("config_*");
-        let configurations_glob = configurations_glob
-            .to_str()
-            .ok_or_else(|| anyhow!("Invalid search pattern: {:?}", configurations_glob))?;
+        let configurations_path = gcloud_path.join("configurations");
 
-        let configurations = glob::glob(configurations_glob)
-            .map_err(anyhow::Error::new)
-            .context("Searching for configurations")?
-            .map(|path| {
-                let path = path.context("Parsing configuration files")?;
-                Configuration::try_from(path)
-            })
-            .collect::<Result<Vec<Configuration>, anyhow::Error>>()?;
+        if !configurations_path.is_dir() {
+            bail!(Error::ConfigurationStoreNotFound(configurations_path));
+        }
+
+        let mut configurations: HashMap<String, Configuration> = HashMap::new();
+
+        for file in fs::read_dir(&configurations_path)? {
+            if file.is_err() {
+                // ignore files we're unable to read - e.g. permissions errors
+                continue;
+            }
+
+            let file = file.unwrap();
+            let name = file.file_name();
+            let name = match name.to_str() {
+                Some(name) => name,
+                None => continue, // ignore files that aren't valid utf8
+            };
+
+            if !name.starts_with("config_") {
+                continue;
+            }
+
+            let name = name.trim_start_matches("config_").to_owned();
+
+            configurations.insert(
+                name.clone(),
+                Configuration {
+                    name,
+                    path: file.path(),
+                },
+            );
+        }
 
         if configurations.is_empty() {
-            bail!(Error::NoConfigurationsFound(location));
+            bail!(Error::NoConfigurationsFound(configurations_path));
         }
 
-        let configurations = configurations
-            .into_iter()
-            .map(|c| (c.name.clone(), c))
-            .collect();
-
-        let active = location.join("active_config");
-        let active = std::fs::read_to_string(active)
-            .with_context(|| format!("Determining active configuration in {:?}", location))?;
+        let active = gcloud_path.join("active_config");
+        let active = fs::read_to_string(active)
+            .with_context(|| format!("Determining active configuration in {:?}", gcloud_path))?;
 
         Ok(ConfigurationStore {
-            location,
+            location: gcloud_path,
             configurations,
             active,
         })

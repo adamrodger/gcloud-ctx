@@ -15,9 +15,6 @@ pub enum Error {
     #[error("Unable to find any gcloud configurations in {0}")]
     NoConfigurationsFound(PathBuf),
 
-    #[error("Unable to load gcloud configuration at {0}")]
-    UnableToReadConfiguration(PathBuf),
-
     #[error("Unable to find configuration '{0}'")]
     UnknownConfiguration(String),
 }
