@@ -1,8 +1,13 @@
 use crate::error::Error;
 use anyhow::{bail, Context, Result};
 use ini::Ini;
+use lazy_static::lazy_static;
 use regex::Regex;
 use std::{cmp::Ordering, collections::HashMap, fs, path::PathBuf};
+
+lazy_static! {
+    static ref NAME_REGEX: Regex = Regex::new("^[a-z][-a-z0-9]*$").unwrap();
+}
 
 #[derive(Debug, Clone)]
 /// Represents a gcloud named configuration
@@ -18,6 +23,14 @@ impl Configuration {
     /// Name of the configuration
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// Is the given name a valid configuration name?
+    ///
+    /// Names must start with a lowercase ASCII character
+    /// then zero or more ASCII alphanumerics and hyphens
+    pub fn is_valid_name(name: &str) -> bool {
+        NAME_REGEX.is_match(name)
     }
 }
 
@@ -65,7 +78,7 @@ impl ConfigurationStore {
     pub fn new() -> Result<Self> {
         let gcloud_path = if cfg!(target_os = "macos") {
             // when building for macos target the `dirs` crate will then return the default
-            // directory for conifguration storage for Mac apps. Gcloud isn't developed as a
+            // directory for configuration storage for Mac apps. gcloud isn't developed as a
             // Mac application and is actually installed as a "unix" app so uses the same location as linux/unix.
             dirs::home_dir().ok_or(Error::ConfigurationDirectoryNotFound)?.join(".config")
         } else {
@@ -83,7 +96,6 @@ impl ConfigurationStore {
             bail!(Error::ConfigurationStoreNotFound(configurations_path));
         }
 
-        let file_name_regex = Regex::new(r"^config_[a-zA-Z0-9-]+$").unwrap();
         let mut configurations: HashMap<String, Configuration> = HashMap::new();
 
         for file in fs::read_dir(&configurations_path)? {
@@ -99,7 +111,7 @@ impl ConfigurationStore {
                 None => continue, // ignore files that aren't valid utf8
             };
 
-            if !file_name_regex.is_match(name) {
+            if !Configuration::is_valid_name(name) {
                 continue;
             }
 
@@ -222,5 +234,44 @@ impl ConfigurationStore {
     /// Find a configuration by name
     pub fn find_by_name(&self, name: &str) -> Option<&Configuration> {
         self.configurations.get(&name.to_owned())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn test_is_valid_name_with_valid_name() {
+        assert!(Configuration::is_valid_name("foo"));
+        assert!(Configuration::is_valid_name("f"));
+        assert!(Configuration::is_valid_name("f123"));
+        assert!(Configuration::is_valid_name("foo-bar"));
+        assert!(Configuration::is_valid_name("foo-123"));
+        assert!(Configuration::is_valid_name("foo-a1b2c3"));
+    }
+
+    #[test]
+    pub fn test_is_valid_name_with_invalid_name() {
+        // too short
+        assert!(!Configuration::is_valid_name(""));
+
+        // doesn't start with lowercase ASCII
+        assert!(!Configuration::is_valid_name("F"));
+        assert!(!Configuration::is_valid_name("1"));
+        assert!(!Configuration::is_valid_name("-"));
+
+        // doesn't contain only alphanumerics and ASCII
+        assert!(!Configuration::is_valid_name("foo_bar"));
+        assert!(!Configuration::is_valid_name("foo.bar"));
+        assert!(!Configuration::is_valid_name("foo|bar"));
+        assert!(!Configuration::is_valid_name("foo$bar"));
+        assert!(!Configuration::is_valid_name("foo#bar"));
+        assert!(!Configuration::is_valid_name("foo@bar"));
+        assert!(!Configuration::is_valid_name("foo;bar"));
+        assert!(!Configuration::is_valid_name("foo?bar"));
+
+        // doesn't contain only lowercase
+        assert!(!Configuration::is_valid_name("camelCase"));
     }
 }
