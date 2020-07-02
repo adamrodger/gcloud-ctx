@@ -74,18 +74,36 @@ pub struct ConfigurationStore {
 }
 
 impl ConfigurationStore {
-    /// Opens the configuration store using the OS-specific default location
-    pub fn new() -> Result<Self> {
-        let gcloud_path = if cfg!(target_os = "macos") {
-            // when building for macos target the `dirs` crate will then return the default
-            // directory for configuration storage for Mac apps. gcloud isn't developed as a
-            // Mac application and is actually installed as a "unix" app so uses the same location as linux/unix.
-            dirs::home_dir().ok_or(Error::ConfigurationDirectoryNotFound)?.join(".config")
+    /// Opens the configuration store using the OS-specific defaults
+    ///
+    /// If the `CLOUDSDK_CONFIG` environment variable is set then this will be used, otherwise an
+    /// OS-specific default location will be used, as defined by the [dirs] crate, e.g.:
+    ///
+    /// - Windows: `%APPDATA%\gcloud`
+    /// - Linux: `~/.config/gcloud`
+    /// - Mac: `~/.config/gcloud` - note that this does not follow the Apple Developer Guidelines
+    ///
+    /// [dirs]: https://crates.io/crates/dirs
+    pub fn with_default_location() -> Result<Self> {
+        let gcloud_path: PathBuf = if let Ok(value) = std::env::var("CLOUDSDK_CONFIG") {
+            value.into()
         } else {
-            dirs::config_dir().ok_or(Error::ConfigurationDirectoryNotFound)?
-        };
-        let gcloud_path = gcloud_path.join("gcloud");
+            let gcloud_path = if cfg!(target_os = "macos") {
+                dirs::home_dir()
+                    .ok_or(Error::ConfigurationDirectoryNotFound)?
+                    .join(".config")
+            } else {
+                dirs::config_dir().ok_or(Error::ConfigurationDirectoryNotFound)?
+            };
 
+            gcloud_path.join("gcloud")
+        };
+
+        Self::with_location(gcloud_path)
+    }
+
+    /// Opens a configuration store at the given path
+    pub fn with_location(gcloud_path: PathBuf) -> Result<Self> {
         if !gcloud_path.is_dir() {
             bail!(Error::ConfigurationStoreNotFound(gcloud_path));
         }
@@ -110,17 +128,16 @@ impl ConfigurationStore {
                 Some(name) => name,
                 None => continue, // ignore files that aren't valid utf8
             };
+            let name = name.trim_start_matches("config_");
 
             if !Configuration::is_valid_name(name) {
                 continue;
             }
 
-            let name = name.trim_start_matches("config_").to_owned();
-
             configurations.insert(
-                name.clone(),
+                name.to_owned(),
                 Configuration {
-                    name,
+                    name: name.to_owned(),
                     path: file.path(),
                 },
             );
@@ -182,7 +199,7 @@ impl ConfigurationStore {
             bail!(Error::ExistingConfiguration(new_name.to_owned()));
         }
 
-        if !Regex::new(r"^[a-zA-Z0-9]+$").unwrap().is_match(new_name) {
+        if !Configuration::is_valid_name(new_name) {
             bail!(Error::InvalidName(new_name.to_owned()));
         }
 
@@ -213,8 +230,11 @@ impl ConfigurationStore {
 
     /// Describe all the properties in the given configuration
     pub fn describe(&self, name: &str) -> Result<Vec<ConfigurationProperty>> {
-        let configuration = self.find_by_name(name).ok_or(Error::UnknownConfiguration(name.to_owned()))?;
-        let ini_file = Ini::load_from_file(&configuration.path).context("Describing configuration")?;
+        let configuration = self
+            .find_by_name(name)
+            .ok_or(Error::UnknownConfiguration(name.to_owned()))?;
+        let ini_file =
+            Ini::load_from_file(&configuration.path).context("Describing configuration")?;
         let mut properties = Vec::new();
 
         for section in ini_file.iter() {
