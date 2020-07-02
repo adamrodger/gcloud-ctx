@@ -1,5 +1,7 @@
 use crate::commands;
-use anyhow::Result;
+use crate::error::Error;
+use crate::fzf;
+use anyhow::{bail, Result};
 use clap::Clap;
 
 /// Run the application using the command line arguments
@@ -12,7 +14,17 @@ pub fn run() -> Result<()> {
         return Ok(());
     } else if let Some(subcmd) = opts.subcmd {
         match subcmd {
-            SubCommand::Activate { name } => commands::activate(&name)?,
+            SubCommand::Activate { name } => match name {
+                Some(n) => commands::activate(&n)?,
+                None => {
+                    if fzf::is_fzf_installed() {
+                        let choice = fzf::fuzzy_find_config()?;
+                        commands::activate(&choice)?
+                    } else {
+                        bail!(Error::NoConfigurationSpecifiedNoFzf);
+                    }
+                }
+            },
             SubCommand::Current => commands::current()?,
             SubCommand::Describe { name } => commands::describe(&name)?,
             SubCommand::List => commands::list()?,
@@ -40,7 +52,7 @@ enum SubCommand {
     /// Activate a configuration by name
     Activate {
         /// Name of the configuration to activate
-        name: String,
+        name: Option<String>,
     },
 
     /// Describe all the properties in a configuration
