@@ -76,7 +76,7 @@ impl ConfigurationStore {
             bail!(Error::ConfigurationStoreNotFound(configurations_path));
         }
 
-        let file_name_regex = Regex::new(r"^config_[a-zA-Z0-9]+$").unwrap();
+        let file_name_regex = Regex::new(r"^config_[a-zA-Z0-9-]+$").unwrap();
         let mut configurations: HashMap<String, Configuration> = HashMap::new();
 
         for file in fs::read_dir(&configurations_path)? {
