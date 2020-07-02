@@ -63,7 +63,14 @@ pub struct ConfigurationStore {
 impl ConfigurationStore {
     /// Opens the configuration store using the OS-specific default location
     pub fn new() -> Result<Self> {
-        let gcloud_path = dirs::config_dir().ok_or(Error::ConfigurationDirectoryNotFound)?;
+        let gcloud_path = if cfg!(target_os = "macos") {
+            // when building for macos target the `dirs` crate will then return the default
+            // directory for conifguration storage for Mac apps. Gcloud isn't developed as a
+            // Mac application and is actually installed as a "unix" app so uses the same location as linux/unix.
+            dirs::home_dir().ok_or(Error::ConfigurationDirectoryNotFound)?.join(".config")
+        } else {
+            dirs::config_dir().ok_or(Error::ConfigurationDirectoryNotFound)?
+        };
         let gcloud_path = gcloud_path.join("gcloud");
 
         if !gcloud_path.is_dir() {
