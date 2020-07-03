@@ -44,9 +44,9 @@ pub fn describe(name: &str) -> Result<()> {
 }
 
 /// Rename a configuration
-pub fn rename(old_name: &str, new_name: &str) -> Result<()> {
+pub fn rename(old_name: &str, new_name: &str, force: bool) -> Result<()> {
     let mut store = ConfigurationStore::with_default_location()?;
-    store.rename(old_name, new_name)?;
+    store.rename(old_name, new_name, force)?;
 
     println!("Successfully renamed configuration '{}' to '{}'", old_name, new_name);
 

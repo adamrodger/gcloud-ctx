@@ -16,7 +16,11 @@ pub fn run() -> Result<()> {
             SubCommand::Current => commands::current()?,
             SubCommand::Describe { name } => commands::describe(&name)?,
             SubCommand::List => commands::list()?,
-            SubCommand::Rename { old_name, new_name } => commands::rename(&old_name, &new_name)?,
+            SubCommand::Rename {
+                old_name,
+                new_name,
+                force,
+            } => commands::rename(&old_name, &new_name, force)?,
         }
     } else {
         commands::current()?;
@@ -62,5 +66,9 @@ enum SubCommand {
 
         /// New name
         new_name: String,
+
+        /// Force a rename to overwrite an existing configuration
+        #[clap(short, long)]
+        force: bool,
     },
 }

@@ -190,12 +190,12 @@ impl ConfigurationStore {
     }
 
     /// Rename a configuration
-    pub fn rename(&mut self, old_name: &str, new_name: &str) -> Result<&Configuration> {
+    pub fn rename(&mut self, old_name: &str, new_name: &str, force: bool) -> Result<&Configuration> {
         if !self.configurations.contains_key(old_name) {
             bail!(Error::UnknownConfiguration(old_name.to_owned()));
         }
 
-        if self.configurations.contains_key(new_name) {
+        if !force && self.configurations.contains_key(new_name) {
             bail!(Error::ExistingConfiguration(new_name.to_owned()));
         }
 
