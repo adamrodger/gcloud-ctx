@@ -56,7 +56,15 @@ gctx my-config
 gctx activate my-config
 
 # create (and optionally activate) a new configuration
-gctx create my-config --project foo --account a.user@example.org --zone europe-west1-d --activate
+gctx create my-config --project foo \
+                      --account a.user@example.org \
+                      --zone europe-west1-d \
+                      --region europe-west1 \
+                      --force \
+                      --activate
+
+# copy an existing configuration
+gctx copy src-name dest-name --force --activate
 
 # show the properties of a configuration (like gcloud config configurations describe)
 # defaults to the current configuration

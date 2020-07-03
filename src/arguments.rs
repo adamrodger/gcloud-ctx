@@ -13,6 +13,14 @@ pub fn run() -> Result<()> {
     } else if let Some(subcmd) = opts.subcmd {
         match subcmd {
             SubCommand::Activate { name } => commands::activate(&name)?,
+            SubCommand::Copy {
+                src_name,
+                dest_name,
+                activate,
+                force,
+            } => {
+                commands::copy(&src_name, &dest_name, force, activate)?;
+            }
             SubCommand::Create {
                 name,
                 project,
@@ -58,6 +66,23 @@ enum SubCommand {
         name: String,
     },
 
+    /// Copy a configuration
+    Copy {
+        // Name of the configuration to copy
+        src_name: String,
+
+        // Name of the new configuration
+        dest_name: String,
+
+        /// Activate the new configuration immediately
+        #[clap(long)]
+        activate: bool,
+
+        /// Force a copy to overwrite an existing configuration
+        #[clap(short, long)]
+        force: bool,
+    },
+
     /// Create a new configuration
     Create {
         // Name of the new configuration
@@ -88,14 +113,14 @@ enum SubCommand {
         force: bool,
     },
 
+    /// Show the current configuration
+    Current,
+
     /// Describe all the properties in a configuration
     Describe {
         /// Name of the configuration
         name: String,
     },
-
-    /// Show the current configuration
-    Current,
 
     /// List all available configurations
     List,

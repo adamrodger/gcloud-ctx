@@ -1,4 +1,4 @@
-use crate::configuration::ConfigurationStore;
+use crate::{configuration::ConfigurationStore, properties::PropertiesBuilder};
 use anyhow::{Context, Result};
 
 /// List the available configurations with an indicator of the active one
@@ -24,6 +24,21 @@ pub fn activate(name: &str) -> Result<()> {
     Ok(())
 }
 
+/// Copy an existing configuration, optionally overriding properties
+pub fn copy(src_name: &str, dest_name: &str, force: bool, activate: bool) -> Result<()> {
+    let mut store = ConfigurationStore::with_default_location()?;
+    store.copy(src_name, dest_name, force)?;
+
+    println!("Successfully copied configuration '{}' to '{}'", src_name, dest_name);
+
+    if activate {
+        store.activate(dest_name)?;
+        println!("Configuration '{}' is now active", dest_name);
+    }
+
+    Ok(())
+}
+
 /// Create a new configuration
 pub fn create(
     name: &str,
@@ -35,7 +50,18 @@ pub fn create(
     activate: bool,
 ) -> Result<()> {
     let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
-    store.create(name, project, account, zone, region, force)?;
+    let mut builder = PropertiesBuilder::default();
+
+    builder.with_project(project).with_account(account).with_zone(zone);
+
+    if let Some(region) = region {
+        builder.with_region(region);
+    }
+
+    let properties = builder.build();
+
+    store.create(name, &properties, force)?;
+
     println!("Successfully created configuration '{}'", name);
 
     if activate {

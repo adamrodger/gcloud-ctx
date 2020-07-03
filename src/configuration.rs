@@ -1,9 +1,8 @@
-use crate::error::Error;
+use crate::{error::Error, properties::Properties};
 use anyhow::{bail, Context, Result};
 use fs::File;
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use std::{cmp::Ordering, collections::HashMap, fs, io::BufReader, path::PathBuf};
 
 lazy_static! {
@@ -55,47 +54,14 @@ impl PartialEq for Configuration {
 
 impl Eq for Configuration {}
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-/// Configuration properties
-pub struct Properties {
-    /// Core properties
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub core: Option<CoreProperties>,
-
-    /// Compute properties
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub compute: Option<ComputeProperties>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-/// Supported properties in the core section
-pub struct CoreProperties {
-    /// `core/project` setting
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub project: Option<String>,
-
-    /// `core/account` setting
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub account: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-/// Supported properties in the compute section
-pub struct ComputeProperties {
-    /// `compute/zone` setting - default compute zone
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub zone: Option<String>,
-
-    /// `compute/region` setting - default compute region
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub region: Option<String>,
-}
-
 #[derive(Debug)]
 /// Represents the store of gcloud configurations
 pub struct ConfigurationStore {
     /// Location of the configuration store on disk
     location: PathBuf,
+
+    /// Path to the configurations sub-folder
+    configurations_path: PathBuf,
 
     /// Available configurations
     configurations: HashMap<String, Configuration>,
@@ -184,6 +150,7 @@ impl ConfigurationStore {
 
         Ok(ConfigurationStore {
             location: gcloud_path,
+            configurations_path,
             configurations,
             active,
         })
@@ -220,16 +187,37 @@ impl ConfigurationStore {
         Ok(())
     }
 
+    /// Copy an existing configuration, optionally overriding properties
+    pub fn copy(&mut self, src_name: &str, dest_name: &str, force: bool) -> Result<()> {
+        let src = self
+            .configurations
+            .get(src_name)
+            .ok_or(Error::UnknownConfiguration(src_name.to_owned()))?;
+
+        if !Configuration::is_valid_name(dest_name) {
+            bail!(Error::InvalidName(dest_name.to_owned()));
+        }
+
+        if !force && self.configurations.contains_key(dest_name) {
+            bail!(Error::ExistingConfiguration(dest_name.to_owned()));
+        }
+
+        // just copy the file on disk so that any properties which aren't directly supported are maintained
+        let filename = self.configurations_path.join(format!("config_{}", dest_name));
+        fs::copy(&src.path, &filename)?;
+
+        let dest = Configuration {
+            name: dest_name.to_owned(),
+            path: filename,
+        };
+
+        self.configurations.insert(dest_name.to_owned(), dest);
+
+        Ok(())
+    }
+
     /// Create a new configuration
-    pub fn create(
-        &mut self,
-        name: &str,
-        project: &str,
-        account: &str,
-        zone: &str,
-        region: Option<&str>,
-        force: bool,
-    ) -> Result<()> {
+    pub fn create(&mut self, name: &str, properties: &Properties, force: bool) -> Result<()> {
         if !Configuration::is_valid_name(name) {
             bail!(Error::InvalidName(name.to_owned()));
         }
@@ -238,24 +226,11 @@ impl ConfigurationStore {
             bail!(Error::ExistingConfiguration(name.to_owned()));
         }
 
-        let properties = Properties {
-            core: Some(CoreProperties {
-                project: Some(project.to_owned()),
-                account: Some(account.to_owned()),
-            }),
-            compute: Some(ComputeProperties {
-                zone: Some(zone.to_owned()),
-                region: match region {
-                    Some(value) => Some(value.to_owned()),
-                    None => None,
-                },
-            }),
-        };
-
-        let filename = self.location.join("configurations").join(format!("config_{}", name));
-        let contents = serde_ini::ser::to_string(&properties).context("Serialising properties")?;
-
-        fs::write(&filename, &contents).context(format!("Writing to file {:?}", filename))?;
+        let filename = self.configurations_path.join(format!("config_{}", name));
+        let file = File::create(&filename).context("Creating configuration file")?;
+        properties
+            .to_writer(file)
+            .context(format!("Writing properties to file {:?}", filename))?;
 
         Ok(())
     }
@@ -270,7 +245,7 @@ impl ConfigurationStore {
         let handle = File::open(path).with_context(|| format!("Opening file {:?}", path))?;
         let reader = BufReader::new(handle);
 
-        let properties = serde_ini::de::from_bufread(reader).with_context(|| format!("Parsing file {:?}", path))?;
+        let properties = Properties::from_reader(reader).context(format!("Reading properties from file {:?}", path))?;
 
         Ok(properties)
     }
