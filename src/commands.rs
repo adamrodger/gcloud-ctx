@@ -48,10 +48,7 @@ pub fn rename(old_name: &str, new_name: &str) -> Result<()> {
     let mut store = ConfigurationStore::with_default_location()?;
     store.rename(old_name, new_name)?;
 
-    println!(
-        "Successfully renamed configuration '{}' to '{}'",
-        old_name, new_name
-    );
+    println!("Successfully renamed configuration '{}' to '{}'", old_name, new_name);
 
     if let Some(configuration) = store.find_by_name(new_name) {
         if store.is_active(configuration) {

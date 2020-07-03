@@ -233,8 +233,7 @@ impl ConfigurationStore {
         let configuration = self
             .find_by_name(name)
             .ok_or(Error::UnknownConfiguration(name.to_owned()))?;
-        let ini_file =
-            Ini::load_from_file(&configuration.path).context("Describing configuration")?;
+        let ini_file = Ini::load_from_file(&configuration.path).context("Describing configuration")?;
         let mut properties = Vec::new();
 
         for section in ini_file.iter() {
