@@ -1,9 +1,9 @@
 use crate::configuration::ConfigurationStore;
-use anyhow::Result;
+use anyhow::{Context, Result};
 
 /// List the available configurations with an indicator of the active one
 pub fn list() -> Result<()> {
-    let store = ConfigurationStore::with_default_location()?;
+    let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
 
     for config in store.configurations() {
         let prefix = if store.is_active(config) { "* " } else { "  " };
@@ -16,7 +16,7 @@ pub fn list() -> Result<()> {
 
 /// Activate the given configuration by name
 pub fn activate(name: &str) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location()?;
+    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     store.activate(name)?;
 
     println!("Successfully activated '{}'", name);
@@ -25,8 +25,16 @@ pub fn activate(name: &str) -> Result<()> {
 }
 
 /// Create a new configuration
-pub fn create(name: &str, project: &str, account: &str, zone: &str, region: Option<&str>, force: bool, activate: bool) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location()?;
+pub fn create(
+    name: &str,
+    project: &str,
+    account: &str,
+    zone: &str,
+    region: Option<&str>,
+    force: bool,
+    activate: bool,
+) -> Result<()> {
+    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     store.create(name, project, account, zone, region, force)?;
     println!("Successfully created configuration '{}'", name);
 
@@ -40,26 +48,25 @@ pub fn create(name: &str, project: &str, account: &str, zone: &str, region: Opti
 
 /// Show the current activated configuration
 pub fn current() -> Result<()> {
-    let store = ConfigurationStore::with_default_location()?;
+    let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     println!("{}", store.active());
     Ok(())
 }
 
 /// Describe all the properties in the given configuration
 pub fn describe(name: &str) -> Result<()> {
-    let store = ConfigurationStore::with_default_location()?;
+    let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     let properties = store.describe(name)?;
 
-    for property in properties {
-        println!("{} = {}", property.key, property.value);
-    }
+    let output = serde_ini::ser::to_string(&properties).context("Serialising properties for display")?;
+    print!("{}", output);
 
     Ok(())
 }
 
 /// Rename a configuration
 pub fn rename(old_name: &str, new_name: &str, force: bool) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location()?;
+    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     store.rename(old_name, new_name, force)?;
 
     println!("Successfully renamed configuration '{}' to '{}'", old_name, new_name);

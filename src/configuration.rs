@@ -1,9 +1,10 @@
 use crate::error::Error;
 use anyhow::{bail, Context, Result};
-use ini::Ini;
+use fs::File;
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::{cmp::Ordering, collections::HashMap, fs, path::PathBuf};
+use serde::{Deserialize, Serialize};
+use std::{cmp::Ordering, collections::HashMap, fs, io::BufReader, path::PathBuf};
 
 lazy_static! {
     static ref NAME_REGEX: Regex = Regex::new("^[a-z][-a-z0-9]*$").unwrap();
@@ -54,10 +55,40 @@ impl PartialEq for Configuration {
 
 impl Eq for Configuration {}
 
-/// Represents a single configuration property
-pub struct ConfigurationProperty {
-    pub key: String,
-    pub value: String,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+/// Configuration properties
+pub struct Properties {
+    /// Core properties
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub core: Option<CoreProperties>,
+
+    /// Compute properties
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compute: Option<ComputeProperties>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+/// Supported properties in the core section
+pub struct CoreProperties {
+    /// `core/project` setting
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project: Option<String>,
+
+    /// `core/account` setting
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub account: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+/// Supported properties in the compute section
+pub struct ComputeProperties {
+    /// `compute/zone` setting - default compute zone
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub zone: Option<String>,
+
+    /// `compute/region` setting - default compute region
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub region: Option<String>,
 }
 
 #[derive(Debug)]
@@ -190,7 +221,15 @@ impl ConfigurationStore {
     }
 
     /// Create a new configuration
-    pub fn create(&mut self, name: &str, project: &str, account: &str, zone: &str, region: Option<&str>, force: bool) -> Result<()> {
+    pub fn create(
+        &mut self,
+        name: &str,
+        project: &str,
+        account: &str,
+        zone: &str,
+        region: Option<&str>,
+        force: bool,
+    ) -> Result<()> {
         if !Configuration::is_valid_name(name) {
             bail!(Error::InvalidName(name.to_owned()));
         }
@@ -199,23 +238,41 @@ impl ConfigurationStore {
             bail!(Error::ExistingConfiguration(name.to_owned()));
         }
 
-        let mut file = Ini::new();
-
-        file.with_section(Some("core"))
-            .set("project", project)
-            .set("account", account);
-
-        let mut compute_section = file.with_section(Some("compute"));
-        let compute_section = compute_section.set("zone", zone);
-
-        if let Some(region) = region {
-            compute_section.set("region", region);
-        }
+        let properties = Properties {
+            core: Some(CoreProperties {
+                project: Some(project.to_owned()),
+                account: Some(account.to_owned()),
+            }),
+            compute: Some(ComputeProperties {
+                zone: Some(zone.to_owned()),
+                region: match region {
+                    Some(value) => Some(value.to_owned()),
+                    None => None,
+                },
+            }),
+        };
 
         let filename = self.location.join("configurations").join(format!("config_{}", name));
-        file.write_to_file(filename)?;
+        let contents = serde_ini::ser::to_string(&properties).context("Serialising properties")?;
+
+        fs::write(&filename, &contents).context(format!("Writing to file {:?}", filename))?;
 
         Ok(())
+    }
+
+    /// Describe the properties in the given configuration
+    pub fn describe(&self, name: &str) -> Result<Properties> {
+        let configuration = self
+            .find_by_name(name)
+            .ok_or(Error::UnknownConfiguration(name.to_owned()))?;
+
+        let path = &configuration.path;
+        let handle = File::open(path).with_context(|| format!("Opening file {:?}", path))?;
+        let reader = BufReader::new(handle);
+
+        let properties = serde_ini::de::from_bufread(reader).with_context(|| format!("Parsing file {:?}", path))?;
+
+        Ok(properties)
     }
 
     /// Rename a configuration
@@ -235,10 +292,8 @@ impl ConfigurationStore {
         let (active, new_value) = {
             let existing = self.configurations.get(old_name).unwrap();
 
-            let new_value = Configuration {
-                name: new_name.to_owned(),
-                path: existing.path.with_file_name(format!("config_{}", new_name)),
-            };
+            let mut new_value = existing.clone();
+            new_value.path = existing.path.with_file_name(format!("config_{}", new_name));
 
             std::fs::rename(&existing.path, &new_value.path)?;
 
@@ -255,28 +310,6 @@ impl ConfigurationStore {
 
         let new_value = self.configurations.get(new_name).unwrap();
         Ok(&new_value)
-    }
-
-    /// Describe all the properties in the given configuration
-    pub fn describe(&self, name: &str) -> Result<Vec<ConfigurationProperty>> {
-        let configuration = self
-            .find_by_name(name)
-            .ok_or(Error::UnknownConfiguration(name.to_owned()))?;
-        let ini_file = Ini::load_from_file(&configuration.path).context("Describing configuration")?;
-        let mut properties = Vec::new();
-
-        for section in ini_file.iter() {
-            if let Some(header) = section.0 {
-                for property in section.1.iter() {
-                    properties.push(ConfigurationProperty {
-                        key: format!("{}/{}", header, property.0),
-                        value: property.1.to_owned(),
-                    });
-                }
-            }
-        }
-
-        Ok(properties)
     }
 
     /// Find a configuration by name

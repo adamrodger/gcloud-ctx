@@ -23,7 +23,7 @@ pub fn run() -> Result<()> {
                 force,
             } => {
                 commands::create(&name, &project, &account, &zone, region.as_deref(), force, activate)?;
-            },
+            }
             SubCommand::Current => commands::current()?,
             SubCommand::Describe { name } => commands::describe(&name)?,
             SubCommand::List => commands::list()?,
