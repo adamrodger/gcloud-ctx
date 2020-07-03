@@ -1,4 +1,4 @@
-# `gctx` - A `gcloud` configuration utility
+# `gcloud-ctx` - A `gcloud` configuration utility
 
 Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
@@ -18,7 +18,7 @@ impressed, I thought it would make a great starter project.
 
 ## Goals
 
-`gctx` aims to achieve similar goals to `kubectx`, such as:
+`gcloud-ctx` aims to achieve similar goals to `kubectx`, such as:
 
 - Extremely fast switching between different `gcloud` configurations
 - Cross platform
@@ -32,7 +32,7 @@ impressed, I thought it would make a great starter project.
 Get the latest stable version of Rust via [`rustup`](https://rustup.rs/) and run:
 
 ```bash
-cargo install gctx
+cargo install gcloud-ctx
 ```
 
 **TODO**: Pre-build binaries with support for common CLI installers such as `brew` and `scoop`
@@ -54,6 +54,9 @@ gctx list
 gctx my-config
 # or to explicitly activate, e.g. if your configuration name clashes with a gctx command
 gctx activate my-config
+
+# create (and optionally activate) a new configuration
+gctx create my-config --project foo --account a.user@example.org --zone europe-west1-d --activate
 
 # show the properties of a configuration (like gcloud config configurations describe)
 # defaults to the current configuration

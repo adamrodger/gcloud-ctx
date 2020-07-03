@@ -1,10 +1,20 @@
 [package]
-name = "gctx"
+name = "gcloud-ctx"
 version = "0.1.0"
 authors = ["Adam Rodger <adam.rodger@gmail.com>"]
 edition = "2018"
+description = "A gcloud configuration manager"
+readme = "./README.md"
+homepage = "https://github.com/adamrodger/gcloud-ctx"
+repository = "https://github.com/adamrodger/gcloud-ctx"
+license = "MIT"
+keywords = ["gcloud", "gctx", "gcloud-ctx"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bin]]
+name = "gctx"
+path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0.31"
