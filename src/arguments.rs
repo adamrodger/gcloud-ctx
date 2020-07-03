@@ -13,6 +13,17 @@ pub fn run() -> Result<()> {
     } else if let Some(subcmd) = opts.subcmd {
         match subcmd {
             SubCommand::Activate { name } => commands::activate(&name)?,
+            SubCommand::Create {
+                name,
+                project,
+                account,
+                zone,
+                region,
+                activate,
+                force,
+            } => {
+                commands::create(&name, &project, &account, &zone, region.as_deref(), force, activate)?;
+            },
             SubCommand::Current => commands::current()?,
             SubCommand::Describe { name } => commands::describe(&name)?,
             SubCommand::List => commands::list()?,
@@ -45,6 +56,36 @@ enum SubCommand {
     Activate {
         /// Name of the configuration to activate
         name: String,
+    },
+
+    /// Create a new configuration
+    Create {
+        // Name of the new configuration
+        name: String,
+
+        /// Setting for core/project
+        #[clap(short, long)]
+        project: String,
+
+        /// Setting for core/account
+        #[clap(short, long)]
+        account: String,
+
+        /// Setting for compute/zone
+        #[clap(short, long)]
+        zone: String,
+
+        /// Setting for compute/region
+        #[clap(short, long)]
+        region: Option<String>,
+
+        /// Activate the new configuration immediately
+        #[clap(long)]
+        activate: bool,
+
+        /// Force a create to overwrite an existing configuration
+        #[clap(short, long)]
+        force: bool,
     },
 
     /// Describe all the properties in a configuration

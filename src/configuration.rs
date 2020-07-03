@@ -189,18 +189,47 @@ impl ConfigurationStore {
         Ok(())
     }
 
+    /// Create a new configuration
+    pub fn create(&mut self, name: &str, project: &str, account: &str, zone: &str, region: Option<&str>, force: bool) -> Result<()> {
+        if !Configuration::is_valid_name(name) {
+            bail!(Error::InvalidName(name.to_owned()));
+        }
+
+        if !force && self.configurations.contains_key(name) {
+            bail!(Error::ExistingConfiguration(name.to_owned()));
+        }
+
+        let mut file = Ini::new();
+
+        file.with_section(Some("core"))
+            .set("project", project)
+            .set("account", account);
+
+        let mut compute_section = file.with_section(Some("compute"));
+        let compute_section = compute_section.set("zone", zone);
+
+        if let Some(region) = region {
+            compute_section.set("region", region);
+        }
+
+        let filename = self.location.join("configurations").join(format!("config_{}", name));
+        file.write_to_file(filename)?;
+
+        Ok(())
+    }
+
     /// Rename a configuration
     pub fn rename(&mut self, old_name: &str, new_name: &str, force: bool) -> Result<&Configuration> {
         if !self.configurations.contains_key(old_name) {
             bail!(Error::UnknownConfiguration(old_name.to_owned()));
         }
 
-        if !force && self.configurations.contains_key(new_name) {
-            bail!(Error::ExistingConfiguration(new_name.to_owned()));
-        }
-
         if !Configuration::is_valid_name(new_name) {
             bail!(Error::InvalidName(new_name.to_owned()));
+        }
+
+        if !force && self.configurations.contains_key(new_name) {
+            bail!(Error::ExistingConfiguration(new_name.to_owned()));
         }
 
         let (active, new_value) = {

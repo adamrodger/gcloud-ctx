@@ -24,6 +24,20 @@ pub fn activate(name: &str) -> Result<()> {
     Ok(())
 }
 
+/// Create a new configuration
+pub fn create(name: &str, project: &str, account: &str, zone: &str, region: Option<&str>, force: bool, activate: bool) -> Result<()> {
+    let mut store = ConfigurationStore::with_default_location()?;
+    store.create(name, project, account, zone, region, force)?;
+    println!("Successfully created configuration '{}'", name);
+
+    if activate {
+        store.activate(name)?;
+        println!("Configuration '{}' is now active", name);
+    }
+
+    Ok(())
+}
+
 /// Show the current activated configuration
 pub fn current() -> Result<()> {
     let store = ConfigurationStore::with_default_location()?;
