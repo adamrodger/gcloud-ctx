@@ -1,65 +1,17 @@
-use crate::commands;
-use anyhow::Result;
 use clap::Clap;
-
-/// Run the application using the command line arguments
-pub fn run() -> Result<()> {
-    let opts: Opts = Opts::parse();
-
-    if let Some(name) = opts.context {
-        // shortcut for activate
-        commands::activate(&name)?;
-        return Ok(());
-    } else if let Some(subcmd) = opts.subcmd {
-        match subcmd {
-            SubCommand::Activate { name } => commands::activate(&name)?,
-            SubCommand::Copy {
-                src_name,
-                dest_name,
-                activate,
-                force,
-            } => {
-                commands::copy(&src_name, &dest_name, force, activate)?;
-            }
-            SubCommand::Create {
-                name,
-                project,
-                account,
-                zone,
-                region,
-                activate,
-                force,
-            } => {
-                commands::create(&name, &project, &account, &zone, region.as_deref(), force, activate)?;
-            }
-            SubCommand::Current => commands::current()?,
-            SubCommand::Describe { name } => commands::describe(&name)?,
-            SubCommand::List => commands::list()?,
-            SubCommand::Rename {
-                old_name,
-                new_name,
-                force,
-            } => commands::rename(&old_name, &new_name, force)?,
-        }
-    } else {
-        commands::current()?;
-    }
-
-    Ok(())
-}
 
 /// gcloud configuration manager
 #[derive(Clap)]
 pub struct Opts {
     /// Switch to this context (shorthand for activate, ignores subsequent arguments)
-    context: Option<String>,
+    pub context: Option<String>,
 
     #[clap(subcommand)]
-    subcmd: Option<SubCommand>,
+    pub subcmd: Option<SubCommand>,
 }
 
 #[derive(Clap)]
-enum SubCommand {
+pub enum SubCommand {
     /// Activate a configuration by name
     Activate {
         /// Name of the configuration to activate

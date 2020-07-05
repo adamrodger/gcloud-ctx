@@ -12,9 +12,13 @@ keywords = ["gcloud", "gctx", "gcloud-ctx"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "gcloud_ctx"
+path = "src/lib.rs"
+
 [[bin]]
 name = "gctx"
-path = "src/main.rs"
+path = "src/bin/gctx.rs"
 
 [dependencies]
 anyhow = "1"
