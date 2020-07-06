@@ -15,7 +15,7 @@ pub enum SubCommand {
     /// Activate a configuration by name
     Activate {
         /// Name of the configuration to activate
-        name: String,
+        name: Option<String>,
     },
 
     /// Copy a configuration
