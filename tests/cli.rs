@@ -4,11 +4,6 @@ use predicates::prelude::*;
 
 mod common;
 
-#[cfg(windows)]
-const LINE_ENDING: &'static str = "\r\n";
-#[cfg(not(windows))]
-const LINE_ENDING: &'static str = "\n";
-
 #[test]
 fn no_args_defaults_to_current() {
     let (mut cli, tmp) = TempConfigurationStore::new()
@@ -272,7 +267,7 @@ fn create_sets_properties_successfully() {
         "zone=europe-west1-d",
         "region=us-east1",
         ""
-    ].join(LINE_ENDING));
+    ].join("\n"));
 
     tmp.close().unwrap();
 }
@@ -355,7 +350,7 @@ fn create_with_force_succeeds() {
         "zone=europe-west1-d",
         "region=us-east1",
         ""
-    ].join(LINE_ENDING));
+    ].join("\n"));
 
     tmp.close().unwrap();
 }

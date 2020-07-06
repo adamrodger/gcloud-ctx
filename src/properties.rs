@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::io::{Read, Write};
+use serde_ini::{Writer, Serializer};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Configuration properties
@@ -22,7 +23,8 @@ impl Properties {
 
     /// Serialise the properties to the given writer
     pub fn to_writer<W: Write>(&self, writer: W) -> Result<()> {
-        serde_ini::ser::to_writer(writer, self).context("Serialising properties")
+        let mut ser = Serializer::new(Writer::new(writer, serde_ini::LineEnding::Linefeed));
+        self.serialize(&mut ser).context("Serialising properties")
     }
 }
 
