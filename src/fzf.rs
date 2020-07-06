@@ -21,5 +21,5 @@ pub fn fuzzy_find_config() -> Result<String> {
         .spawn()?;
 
     let output = child.wait_with_output()?;
-    Ok(str::from_utf8(&output.stdout)?.trim().to_owned())
+    Ok(str::from_utf8(&output.stdout)?.trim_start_matches('*').trim().to_owned())
 }
