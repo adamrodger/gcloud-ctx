@@ -5,6 +5,37 @@ use predicates::prelude::*;
 mod common;
 
 #[test]
+fn no_args_defaults_to_current() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config("foo")
+        .with_config_activated("bar")
+        .build()
+        .unwrap();
+
+    cli.assert().success().stdout("bar\n");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn unknown_subcommand_defaults_to_activate() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config("foo")
+        .with_config_activated("bar")
+        .build()
+        .unwrap();
+
+    cli.arg("foo");
+
+    cli.assert().success().stdout("Successfully activated 'foo'\n");
+    tmp.child("active_config").assert("foo");
+
+    tmp.close().unwrap();
+}
+
+#[test]
 fn activate_known_configuration_succeeds() {
     let (mut cli, tmp) = TempConfigurationStore::new()
         .unwrap()
