@@ -251,10 +251,13 @@ impl ConfigurationStore {
     }
 
     /// Rename a configuration
-    pub fn rename(&mut self, old_name: &str, new_name: &str, force: bool) -> Result<&Configuration> {
-        if !self.configurations.contains_key(old_name) {
-            bail!(Error::UnknownConfiguration(old_name.to_owned()));
-        }
+    pub fn rename(&mut self, old_name: &str, new_name: &str, force: bool) -> Result<()> {
+        let src = self
+            .configurations
+            .get(old_name)
+            .ok_or(Error::UnknownConfiguration(old_name.to_owned()))?;
+
+        let active = self.is_active(&src);
 
         if !Configuration::is_valid_name(new_name) {
             bail!(Error::InvalidName(new_name.to_owned()));
@@ -264,16 +267,12 @@ impl ConfigurationStore {
             bail!(Error::ExistingConfiguration(new_name.to_owned()));
         }
 
-        let (active, new_value) = {
-            let existing = self.configurations.get(old_name).unwrap();
-
-            let mut new_value = existing.clone();
-            new_value.path = existing.path.with_file_name(format!("config_{}", new_name));
-
-            std::fs::rename(&existing.path, &new_value.path)?;
-
-            (self.is_active(&existing), new_value)
+        let new_value = Configuration {
+            name: new_name.to_owned(),
+            path: src.path.with_file_name(format!("config_{}", new_name)),
         };
+
+        std::fs::rename(&src.path, &new_value.path)?;
 
         self.configurations.remove(old_name);
         self.configurations.insert(new_name.to_owned(), new_value);
@@ -283,8 +282,7 @@ impl ConfigurationStore {
             self.activate(new_name)?;
         }
 
-        let new_value = self.configurations.get(new_name).unwrap();
-        Ok(&new_value)
+        Ok(())
     }
 
     /// Find a configuration by name

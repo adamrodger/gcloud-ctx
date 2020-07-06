@@ -132,7 +132,6 @@ fn rename_inactive_configuration_succeeds() {
 }
 
 #[test]
-#[ignore] // doesn't currently work - active config is left invalid
 fn rename_active_configuration_succeeds() {
     let (mut cli, tmp) = TempConfigurationStore::new()
         .unwrap()
@@ -158,7 +157,6 @@ fn rename_active_configuration_succeeds() {
 }
 
 #[test]
-#[ignore] // doesn't currently work - active config is left invalid
 fn rename_to_existing_name_with_force_overwrites_existing() {
     let (mut cli, tmp) = TempConfigurationStore::new()
         .unwrap()
