@@ -5,8 +5,8 @@ mod error;
 mod fzf;
 mod properties;
 
-use anyhow::{bail, Result};
 use crate::error::Error;
+use anyhow::{bail, Result};
 pub use arguments::Opts;
 use arguments::SubCommand;
 
@@ -28,7 +28,7 @@ pub fn run(opts: Opts) -> Result<()> {
                         bail!(Error::NoConfigurationSpecifiedNoFzf);
                     }
                 }
-            }
+            },
             SubCommand::Copy {
                 src_name,
                 dest_name,

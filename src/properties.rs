@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use serde_ini::{Serializer, Writer};
 use std::io::{Read, Write};
-use serde_ini::{Writer, Serializer};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 /// Configuration properties

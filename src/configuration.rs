@@ -232,10 +232,13 @@ impl ConfigurationStore {
             .to_writer(file)
             .context(format!("Writing properties to file {:?}", filename))?;
 
-        self.configurations.insert(name.to_owned(), Configuration {
-            name: name.to_owned(),
-            path: filename,
-        });
+        self.configurations.insert(
+            name.to_owned(),
+            Configuration {
+                name: name.to_owned(),
+                path: filename,
+            },
+        );
 
         Ok(())
     }

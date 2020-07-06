@@ -1,5 +1,5 @@
-use common::TempConfigurationStore;
 use assert_fs::prelude::*;
+use common::TempConfigurationStore;
 use predicates::prelude::*;
 
 mod common;
@@ -62,7 +62,9 @@ fn activate_unknown_configuration_fails() {
 
     cli.arg("activate").arg("unknown");
 
-    cli.assert().failure().stderr("Error: Unable to find configuration 'unknown'\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: Unable to find configuration 'unknown'\n");
     tmp.child("active_config").assert("foo");
 
     tmp.close().unwrap();
@@ -122,11 +124,15 @@ fn rename_inactive_configuration_succeeds() {
 
     cli.arg("rename").arg("foo").arg("renamed");
 
-    cli.assert().success().stdout("Successfully renamed configuration 'foo' to 'renamed'\n");
+    cli.assert()
+        .success()
+        .stdout("Successfully renamed configuration 'foo' to 'renamed'\n");
 
     tmp.child("active_config").assert("bar");
-    tmp.child("configurations/config_foo").assert(predicate::path::missing());
-    tmp.child("configurations/config_renamed").assert(predicate::path::exists());
+    tmp.child("configurations/config_foo")
+        .assert(predicate::path::missing());
+    tmp.child("configurations/config_renamed")
+        .assert(predicate::path::exists());
 
     tmp.close().unwrap();
 }
@@ -150,8 +156,10 @@ fn rename_active_configuration_succeeds() {
     ].join("\n"));
 
     tmp.child("active_config").assert("renamed");
-    tmp.child("configurations/config_bar").assert(predicate::path::missing());
-    tmp.child("configurations/config_renamed").assert(predicate::path::exists());
+    tmp.child("configurations/config_bar")
+        .assert(predicate::path::missing());
+    tmp.child("configurations/config_renamed")
+        .assert(predicate::path::exists());
 
     tmp.close().unwrap();
 }
@@ -175,7 +183,8 @@ fn rename_to_existing_name_with_force_overwrites_existing() {
     ].join("\n"));
 
     tmp.child("active_config").assert("foo");
-    tmp.child("configurations/config_bar").assert(predicate::path::missing());
+    tmp.child("configurations/config_bar")
+        .assert(predicate::path::missing());
     tmp.child("configurations/config_foo").assert(predicate::path::exists());
 
     tmp.close().unwrap();
@@ -212,11 +221,14 @@ fn rename_to_invalid_name_fails() {
 
     cli.arg("rename").arg("foo").arg("invalid_name");
 
-    cli.assert().failure().stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
 
     tmp.child("active_config").assert("foo");
     tmp.child("configurations/config_foo").assert(predicate::path::exists());
-    tmp.child("configurations/config_invalid_name").assert(predicate::path::missing());
+    tmp.child("configurations/config_invalid_name")
+        .assert(predicate::path::missing());
 
     tmp.close().unwrap();
 }
@@ -231,11 +243,14 @@ fn rename_unknown_configuration_fails() {
 
     cli.arg("rename").arg("unknown").arg("bar");
 
-    cli.assert().failure().stderr("Error: Unable to find configuration 'unknown'\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: Unable to find configuration 'unknown'\n");
 
     tmp.child("active_config").assert("foo");
     tmp.child("configurations/config_foo").assert(predicate::path::exists());
-    tmp.child("configurations/config_bar").assert(predicate::path::missing());
+    tmp.child("configurations/config_bar")
+        .assert(predicate::path::missing());
 
     tmp.close().unwrap();
 }
@@ -256,7 +271,9 @@ fn create_sets_properties_successfully() {
        .args(&["--zone", "europe-west1-d"])
        .args(&["--region", "us-east1"]);
 
-    cli.assert().success().stdout("Successfully created configuration 'new-config'\n");
+    cli.assert()
+        .success()
+        .stdout("Successfully created configuration 'new-config'\n");
 
     #[rustfmt::skip]
     tmp.child("configurations/config_new-config").assert([
@@ -288,7 +305,9 @@ fn create_without_activate_maintains_previous_activation() {
        .args(&["--zone", "europe-west1-d"])
        .args(&["--region", "us-east1"]);
 
-    cli.assert().success().stdout("Successfully created configuration 'new-config'\n");
+    cli.assert()
+        .success()
+        .stdout("Successfully created configuration 'new-config'\n");
 
     tmp.child("active_config").assert("foo");
 
@@ -312,8 +331,10 @@ fn create_with_activate_activates_new_configuration() {
        .args(&["--region", "us-east1"])
        .arg("--activate");
 
-    cli.assert().success().stdout("Successfully created configuration 'new-config'\n\
-                                         Configuration 'new-config' is now active\n");
+    cli.assert().success().stdout(
+        "Successfully created configuration 'new-config'\n\
+         Configuration 'new-config' is now active\n",
+    );
 
     tmp.child("active_config").assert("new-config");
 
@@ -337,7 +358,9 @@ fn create_with_force_succeeds() {
        .args(&["--region", "us-east1"])
        .arg("--force");
 
-    cli.assert().success().stdout("Successfully created configuration 'foo'\n");
+    cli.assert()
+        .success()
+        .stdout("Successfully created configuration 'foo'\n");
 
     tmp.child("active_config").assert("foo");
 
@@ -371,7 +394,9 @@ fn create_with_invalid_name_fails() {
        .args(&["--zone", "europe-west1-d"])
        .args(&["--region", "us-east1"]);
 
-    cli.assert().failure().stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
 
     tmp.close().unwrap();
 }
@@ -392,7 +417,9 @@ fn create_without_force_fails() {
        .args(&["--zone", "europe-west1-d"])
        .args(&["--region", "us-east1"]);
 
-    cli.assert().failure().stderr("Error: A configuration named 'foo' already exists. Use --force to overwrite it\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: A configuration named 'foo' already exists. Use --force to overwrite it\n");
 
     tmp.close().unwrap();
 }
