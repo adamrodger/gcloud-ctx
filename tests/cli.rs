@@ -4,6 +4,11 @@ use predicates::prelude::*;
 
 mod common;
 
+#[cfg(windows)]
+const LINE_ENDING: &'static str = "\r\n";
+#[cfg(not(windows))]
+const LINE_ENDING: &'static str = "\n";
+
 #[test]
 fn no_args_defaults_to_current() {
     let (mut cli, tmp) = TempConfigurationStore::new()
@@ -240,4 +245,159 @@ fn rename_unknown_configuration_fails() {
     tmp.close().unwrap();
 }
 
+#[test]
+fn create_sets_properties_successfully() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
 
+    #[rustfmt::skip]
+    cli.arg("create")
+       .arg("new-config")
+       .args(&["--project", "my-project"])
+       .args(&["--account", "a.user@example.org"])
+       .args(&["--zone", "europe-west1-d"])
+       .args(&["--region", "us-east1"]);
+
+    cli.assert().success().stdout("Successfully created configuration 'new-config'\n");
+
+    #[rustfmt::skip]
+    tmp.child("configurations/config_new-config").assert([
+        "[core]",
+        "project=my-project",
+        "account=a.user@example.org",
+        "[compute]",
+        "zone=europe-west1-d",
+        "region=us-east1",
+        ""
+    ].join(LINE_ENDING));
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn create_without_activate_maintains_previous_activation() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create")
+       .arg("new-config")
+       .args(&["--project", "my-project"])
+       .args(&["--account", "a.user@example.org"])
+       .args(&["--zone", "europe-west1-d"])
+       .args(&["--region", "us-east1"]);
+
+    cli.assert().success().stdout("Successfully created configuration 'new-config'\n");
+
+    tmp.child("active_config").assert("foo");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn create_with_activate_activates_new_configuration() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create")
+       .arg("new-config")
+       .args(&["--project", "my-project"])
+       .args(&["--account", "a.user@example.org"])
+       .args(&["--zone", "europe-west1-d"])
+       .args(&["--region", "us-east1"])
+       .arg("--activate");
+
+    cli.assert().success().stdout("Successfully created configuration 'new-config'\n\
+                                         Configuration 'new-config' is now active\n");
+
+    tmp.child("active_config").assert("new-config");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn create_with_force_succeeds() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create")
+       .arg("foo")
+       .args(&["--project", "my-project"])
+       .args(&["--account", "a.user@example.org"])
+       .args(&["--zone", "europe-west1-d"])
+       .args(&["--region", "us-east1"])
+       .arg("--force");
+
+    cli.assert().success().stdout("Successfully created configuration 'foo'\n");
+
+    tmp.child("active_config").assert("foo");
+
+    #[rustfmt::skip]
+    tmp.child("configurations/config_foo").assert([
+        "[core]",
+        "project=my-project",
+        "account=a.user@example.org",
+        "[compute]",
+        "zone=europe-west1-d",
+        "region=us-east1",
+        ""
+    ].join(LINE_ENDING));
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn create_with_invalid_name_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create")
+       .arg("invalid_name")
+       .args(&["--project", "my-project"])
+       .args(&["--account", "a.user@example.org"])
+       .args(&["--zone", "europe-west1-d"])
+       .args(&["--region", "us-east1"]);
+
+    cli.assert().failure().stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn create_without_force_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create")
+       .arg("foo")
+       .args(&["--project", "my-project"])
+       .args(&["--account", "a.user@example.org"])
+       .args(&["--zone", "europe-west1-d"])
+       .args(&["--region", "us-east1"]);
+
+    cli.assert().failure().stderr("Error: A configuration named 'foo' already exists. Use --force to overwrite it\n");
+
+    tmp.close().unwrap();
+}
