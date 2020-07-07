@@ -465,3 +465,127 @@ fn describe_unknown_configuration_fails() {
 
     tmp.close().unwrap();
 }
+
+#[test]
+fn copy_copies_all_properties() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    let contents = [
+        "[core]",
+        "project=my-project",
+        "account=a.user@example.org",
+        "[compute]",
+        "zone=europe-west1-d",
+        "region=us-east1",
+        "[extra]",
+        "foo=bar",
+        ""
+    ].join("\n");
+
+    tmp.child("configurations/config_foo").write_str(&contents).unwrap();
+
+    cli.arg("copy").arg("foo").arg("bar");
+
+    cli.assert().success().stdout("Successfully copied configuration 'foo' to 'bar'\n");
+
+    tmp.child("active_config").assert("foo");
+    tmp.child("configurations/config_bar").assert(contents);
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn copy_with_activation_activates_configuration() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    cli.arg("copy").arg("foo").arg("bar").arg("--activate");
+
+    cli.assert().success().stdout(
+        "Successfully copied configuration 'foo' to 'bar'\n\
+        Configuration 'bar' is now active\n"
+    );
+
+    tmp.child("active_config").assert("bar");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn copy_with_force_succeeds() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .with_config("bar")
+        .build()
+        .unwrap();
+
+    tmp.child("configurations/config_foo").write_str("foo").unwrap();
+    tmp.child("configurations/config_bar").write_str("bar").unwrap();
+
+    cli.arg("copy").arg("foo").arg("bar").arg("--force");
+
+    cli.assert().success().stdout("Successfully copied configuration 'foo' to 'bar'\n");
+
+    tmp.child("configurations/config_bar").assert(predicate::path::eq_file(tmp.child("configurations/config_foo").path()));
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn copy_without_force_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .with_config("bar")
+        .build()
+        .unwrap();
+
+    tmp.child("configurations/config_foo").write_str("foo").unwrap();
+    tmp.child("configurations/config_bar").write_str("bar").unwrap();
+
+    cli.arg("copy").arg("foo").arg("bar");
+
+    cli.assert().failure().stderr("Error: A configuration named 'bar' already exists. Use --force to overwrite it\n");
+
+    tmp.child("configurations/config_bar").assert("bar");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn copy_unknown_configuration_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    cli.arg("copy").arg("unknown").arg("bar");
+
+    cli.assert().failure().stderr("Error: Unable to find configuration 'unknown'\n");
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn copy_invalid_name_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    cli.arg("copy").arg("foo").arg("invalid_name");
+
+    cli.assert().failure().stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
+
+    tmp.close().unwrap();
+}
