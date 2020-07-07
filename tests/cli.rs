@@ -423,3 +423,45 @@ fn create_without_force_fails() {
 
     tmp.close().unwrap();
 }
+
+#[test]
+fn describe_shows_supported_properties() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    let contents = [
+        "[core]",
+        "project=my-project",
+        "account=a.user@example.org",
+        "[compute]",
+        "zone=europe-west1-d",
+        "region=us-east1",
+        ""
+    ].join("\n");
+
+    tmp.child("configurations/config_foo").write_str(&contents).unwrap();
+
+    cli.arg("describe").arg("foo");
+
+    cli.assert().success().stdout(contents);
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn describe_unknown_configuration_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    cli.arg("describe").arg("unknown");
+
+    cli.assert().failure().stderr("Error: Unable to find configuration 'unknown'\n");
+
+    tmp.close().unwrap();
+}

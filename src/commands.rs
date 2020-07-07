@@ -84,8 +84,7 @@ pub fn describe(name: &str) -> Result<()> {
     let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     let properties = store.describe(name)?;
 
-    let output = serde_ini::ser::to_string(&properties).context("Serialising properties for display")?;
-    print!("{}", output);
+    properties.to_writer(std::io::stdout()).context("Serialising properties for display")?;
 
     Ok(())
 }
