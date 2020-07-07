@@ -439,8 +439,9 @@ fn describe_shows_supported_properties() {
         "[compute]",
         "zone=europe-west1-d",
         "region=us-east1",
-        ""
-    ].join("\n");
+        "",
+    ]
+    .join("\n");
 
     tmp.child("configurations/config_foo").write_str(&contents).unwrap();
 
@@ -461,7 +462,9 @@ fn describe_unknown_configuration_fails() {
 
     cli.arg("describe").arg("unknown");
 
-    cli.assert().failure().stderr("Error: Unable to find configuration 'unknown'\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: Unable to find configuration 'unknown'\n");
 
     tmp.close().unwrap();
 }
@@ -483,14 +486,17 @@ fn copy_copies_all_properties() {
         "region=us-east1",
         "[extra]",
         "foo=bar",
-        ""
-    ].join("\n");
+        "",
+    ]
+    .join("\n");
 
     tmp.child("configurations/config_foo").write_str(&contents).unwrap();
 
     cli.arg("copy").arg("foo").arg("bar");
 
-    cli.assert().success().stdout("Successfully copied configuration 'foo' to 'bar'\n");
+    cli.assert()
+        .success()
+        .stdout("Successfully copied configuration 'foo' to 'bar'\n");
 
     tmp.child("active_config").assert("foo");
     tmp.child("configurations/config_bar").assert(contents);
@@ -510,7 +516,7 @@ fn copy_with_activation_activates_configuration() {
 
     cli.assert().success().stdout(
         "Successfully copied configuration 'foo' to 'bar'\n\
-        Configuration 'bar' is now active\n"
+        Configuration 'bar' is now active\n",
     );
 
     tmp.child("active_config").assert("bar");
@@ -532,9 +538,12 @@ fn copy_with_force_succeeds() {
 
     cli.arg("copy").arg("foo").arg("bar").arg("--force");
 
-    cli.assert().success().stdout("Successfully copied configuration 'foo' to 'bar'\n");
+    cli.assert()
+        .success()
+        .stdout("Successfully copied configuration 'foo' to 'bar'\n");
 
-    tmp.child("configurations/config_bar").assert(predicate::path::eq_file(tmp.child("configurations/config_foo").path()));
+    tmp.child("configurations/config_bar")
+        .assert(predicate::path::eq_file(tmp.child("configurations/config_foo").path()));
 
     tmp.close().unwrap();
 }
@@ -553,7 +562,9 @@ fn copy_without_force_fails() {
 
     cli.arg("copy").arg("foo").arg("bar");
 
-    cli.assert().failure().stderr("Error: A configuration named 'bar' already exists. Use --force to overwrite it\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: A configuration named 'bar' already exists. Use --force to overwrite it\n");
 
     tmp.child("configurations/config_bar").assert("bar");
 
@@ -570,7 +581,9 @@ fn copy_unknown_configuration_fails() {
 
     cli.arg("copy").arg("unknown").arg("bar");
 
-    cli.assert().failure().stderr("Error: Unable to find configuration 'unknown'\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: Unable to find configuration 'unknown'\n");
 
     tmp.close().unwrap();
 }
@@ -585,7 +598,9 @@ fn copy_invalid_name_fails() {
 
     cli.arg("copy").arg("foo").arg("invalid_name");
 
-    cli.assert().failure().stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
+    cli.assert()
+        .failure()
+        .stderr("Error: 'invalid_name' is invalid. Configuration names must only contain ASCII letters and numbers\n");
 
     tmp.close().unwrap();
 }

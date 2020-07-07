@@ -84,7 +84,9 @@ pub fn describe(name: &str) -> Result<()> {
     let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     let properties = store.describe(name)?;
 
-    properties.to_writer(std::io::stdout()).context("Serialising properties for display")?;
+    properties
+        .to_writer(std::io::stdout())
+        .context("Serialising properties for display")?;
 
     Ok(())
 }
