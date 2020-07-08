@@ -12,7 +12,7 @@ pub struct Opts {
 
 #[derive(Clap)]
 pub enum SubCommand {
-    /// Activate a configuration by name
+    /// Activate a configuration by name (or using fuzzy find if no name specified)
     Activate {
         /// Name of the configuration to activate
         name: Option<String>,
