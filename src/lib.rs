@@ -2,11 +2,10 @@ mod arguments;
 mod commands;
 mod configuration;
 mod error;
-mod fzf;
 mod properties;
+mod skim;
 
-use crate::error::Error;
-use anyhow::{bail, Result};
+use anyhow::Result;
 pub use arguments::Opts;
 use arguments::SubCommand;
 
@@ -21,12 +20,8 @@ pub fn run(opts: Opts) -> Result<()> {
             SubCommand::Activate { name } => match name {
                 Some(name) => commands::activate(&name)?,
                 None => {
-                    if fzf::is_fzf_installed() {
-                        let choice = fzf::fuzzy_find_config()?;
-                        commands::activate(&choice)?
-                    } else {
-                        bail!(Error::NoConfigurationSpecifiedNoFzf);
-                    }
+                    let choice = skim::fuzzy_find_config()?;
+                    commands::activate(&choice)?;
                 }
             },
             SubCommand::Copy {

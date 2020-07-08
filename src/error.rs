@@ -21,6 +21,9 @@ pub enum Error {
     #[error("Unable to find configuration '{0}'")]
     UnknownConfiguration(String),
 
-    #[error("No configuration specified and fzf not installed")]
-    NoConfigurationSpecifiedNoFzf,
+    #[error("Unable to setup SkimOptionsBuilder")]
+    SkimBuildError,
+
+    #[error("Unable to find a configuration using fuzzy search")]
+    SkimErrorNoConfiguration,
 }
