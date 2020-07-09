@@ -1,5 +1,7 @@
 # `gcloud-ctx` - A `gcloud` configuration utility
 
+![Build and Test](../../workflows/Build%20and%20Test/badge.svg) ![Deploy](../../workflows/Deploy/badge.svg?event=release)
+
 Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
 ## Motivation
@@ -27,7 +29,7 @@ impressed, I thought it would make a great starter project.
 
 ## Installation
 
-### Using `cargo`
+### From source
 
 Get the latest stable version of Rust via [`rustup`](https://rustup.rs/) and run:
 
@@ -36,7 +38,14 @@ cargo install --path .
 # gctx will now be on your PATH
 ```
 
-**TODO**: Pre-build binaries with support for common CLI installers such as `brew` and `scoop`
+### Pre-Built Binaries
+
+Grab the latest binary from the [Releases page](../../releases), extract it and add it to your `PATH`.
+
+### Others (e.g. `scoop` and `brew`)
+
+**TODO**: [Support for `scoop`](https://github.com/adamrodger/gcloud-ctx/issues/13)
+**TODO**: [Support for `brew`](https://github.com/adamrodger/gcloud-ctx/issues/14)
 
 ## Usage
 
@@ -75,3 +84,5 @@ gctx rename --force old-name existing-name   # use force to overwrite an existin
 # show help and usage
 gctx --help
 ```
+
+**Note**: This project is independent and not afilliated with Google in any way
