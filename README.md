@@ -23,7 +23,7 @@ impressed, I thought it would make a great starter project.
 - Extremely fast switching between different `gcloud` configurations
 - Cross platform
 - Shorter to type than `gcloud config configurations activate` 😄
-- **TBD:** Fuzzy finding using `fzf` (if installed)
+- Fuzzy finding using `fzf` (if installed)
 
 ## Installation
 
@@ -32,28 +32,26 @@ impressed, I thought it would make a great starter project.
 Get the latest stable version of Rust via [`rustup`](https://rustup.rs/) and run:
 
 ```bash
-cargo install gcloud-ctx
+cargo install --path .
+# gctx will now be on your PATH
 ```
 
 **TODO**: Pre-build binaries with support for common CLI installers such as `brew` and `scoop`
 
 ## Usage
 
-**Note:** Usage is currently entirely TBD
-
 ```bash
 # show the current configuration (useful for adding to default prompt)
 gctx current
-# or shorthand, just omit current
-gctx
+gctx          # shorthand, just omit current
 
 # list all configurations
 gctx list
 
 # activate a different configuration
 gctx my-config
-# or to explicitly activate, e.g. if your configuration name clashes with a gctx command
-gctx activate my-config
+gctx activate my-config   # explicitly activate, e.g. if your configuration name clashes with a gctx command
+gctx activate             # if fzf is installed, you can omit the name and select from a list
 
 # create (and optionally activate) a new configuration
 gctx create my-config --project foo \
@@ -67,15 +65,12 @@ gctx create my-config --project foo \
 gctx copy src-name dest-name --force --activate
 
 # show the properties of a configuration (like gcloud config configurations describe)
-# defaults to the current configuration
-gctx describe
-gctx describe other-name
+gctx describe           # defaults to the current configuration
+gctx describe name      # describe a named configuration
 
 # rename a configuration
 gctx rename old-name new-name
-
-# use force to overwrite an existing configuration
-gctx rename --force old-name existing-name
+gctx rename --force old-name existing-name   # use force to overwrite an existing configuration
 
 # show help and usage
 gctx --help
