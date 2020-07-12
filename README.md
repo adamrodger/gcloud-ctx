@@ -1,6 +1,6 @@
 # `gcloud-ctx` - A `gcloud` configuration utility
 
-![Build and Test](../../workflows/Build%20and%20Test/badge.svg) ![Deploy](../../workflows/Deploy/badge.svg?event=release)
+![Build and Test](../../workflows/Build%20and%20Test/badge.svg)
 
 Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
@@ -40,7 +40,7 @@ cargo install --path .
 
 ### Pre-Built Binaries
 
-Grab the latest binary from the [Releases page](../../releases), extract it and add it to your `PATH`.
+Grab the [latest binary](https://github.com/adamrodger/gcloud-ctx/releases/latest), extract it and add it to your `PATH`.
 
 ### Others (e.g. `scoop` and `brew`)
 
