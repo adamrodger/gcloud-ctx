@@ -192,7 +192,7 @@ impl ConfigurationStore {
         let src = self
             .configurations
             .get(src_name)
-            .ok_or(Error::UnknownConfiguration(src_name.to_owned()))?;
+            .ok_or_else(|| Error::UnknownConfiguration(src_name.to_owned()))?;
 
         if !Configuration::is_valid_name(dest_name) {
             bail!(Error::InvalidName(dest_name.to_owned()));
@@ -247,7 +247,7 @@ impl ConfigurationStore {
     pub fn describe(&self, name: &str) -> Result<Properties> {
         let configuration = self
             .find_by_name(name)
-            .ok_or(Error::UnknownConfiguration(name.to_owned()))?;
+            .ok_or_else(|| Error::UnknownConfiguration(name.to_owned()))?;
 
         let path = &configuration.path;
         let handle = File::open(path).with_context(|| format!("Opening file {:?}", path))?;
@@ -263,7 +263,7 @@ impl ConfigurationStore {
         let src = self
             .configurations
             .get(old_name)
-            .ok_or(Error::UnknownConfiguration(old_name.to_owned()))?;
+            .ok_or_else(|| Error::UnknownConfiguration(old_name.to_owned()))?;
 
         let active = self.is_active(&src);
 
