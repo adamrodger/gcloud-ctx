@@ -5,7 +5,6 @@ mod error;
 mod fzf;
 mod properties;
 
-use crate::error::Error;
 use anyhow::{bail, Result};
 pub use arguments::Opts;
 use arguments::SubCommand;
@@ -18,16 +17,10 @@ pub fn run(opts: Opts) -> Result<()> {
         return Ok(());
     } else if let Some(subcmd) = opts.subcmd {
         match subcmd {
-            SubCommand::Activate { name } => match name {
-                Some(name) => commands::activate(&name)?,
-                None => {
-                    if fzf::is_fzf_installed() {
-                        let choice = fzf::fuzzy_find_config()?;
-                        commands::activate(&choice)?
-                    } else {
-                        bail!(Error::NoConfigurationSpecifiedNoFzf);
-                    }
-                }
+            SubCommand::Activate { name } => match (name, fzf::is_fzf_installed()) {
+                (Some(name), _) => commands::activate(&name)?,
+                (None, true) => commands::activate(&fzf::fuzzy_find_config()?)?,
+                (None, false) => bail!("You must supply a configuration to activate"),
             },
             SubCommand::Copy {
                 src_name,
