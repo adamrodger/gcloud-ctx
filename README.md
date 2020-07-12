@@ -25,6 +25,7 @@ impressed, I thought it would make a great starter project.
 - Extremely fast switching between different `gcloud` configurations
 - Cross platform
 - Shorter to type than `gcloud config configurations activate` 😄
+- Fuzzy finding using `fzf` (if installed)
 
 ## Installation
 
@@ -59,7 +60,7 @@ gctx list
 # activate a different configuration
 gctx my-config
 gctx activate my-config   # explicitly activate, e.g. if your configuration name clashes with a gctx command
-gctx activate             # you can omit the name and select from a list using the built-in fuzzy finder
+gctx activate             # if fzf is installed, you can omit the name and select from a list
 
 # create (and optionally activate) a new configuration
 gctx create my-config --project foo \
