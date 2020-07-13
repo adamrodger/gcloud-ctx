@@ -1,4 +1,4 @@
-# `gcloud-ctx` - A `gcloud` configuration utility
+# `gctx` - A `gcloud` configuration utility
 
 ![Build and Test](../../workflows/Build%20and%20Test/badge.svg)
 
@@ -20,7 +20,7 @@ impressed, I thought it would make a great starter project.
 
 ## Goals
 
-`gcloud-ctx` aims to achieve similar goals to `kubectx`, such as:
+`gctx` aims to achieve similar goals to `kubectx`, such as:
 
 - Extremely fast switching between different `gcloud` configurations
 - Cross platform
@@ -45,6 +45,7 @@ Grab the [latest binary](https://github.com/adamrodger/gcloud-ctx/releases/lates
 ### Others (e.g. `scoop` and `brew`)
 
 **TODO**: [Support for `scoop`](https://github.com/adamrodger/gcloud-ctx/issues/13)
+
 **TODO**: [Support for `brew`](https://github.com/adamrodger/gcloud-ctx/issues/14)
 
 ## Usage
