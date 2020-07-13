@@ -1,13 +1,16 @@
 mod arguments;
 mod commands;
-mod configuration;
-mod error;
 mod fzf;
-mod properties;
 
 use anyhow::{bail, Result};
-pub use arguments::Opts;
-use arguments::SubCommand;
+use arguments::{Opts, SubCommand};
+use clap::Clap;
+
+fn main() -> Result<()> {
+    let opts = Opts::parse();
+    run(opts)?;
+    Ok(())
+}
 
 /// Run the application using the command line arguments
 pub fn run(opts: Opts) -> Result<()> {

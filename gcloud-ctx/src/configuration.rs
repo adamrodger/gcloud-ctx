@@ -1,5 +1,4 @@
-use crate::{error::Error, properties::Properties};
-use anyhow::{bail, Context, Result};
+use crate::{properties::Properties, Error, Result};
 use fs::File;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -102,13 +101,13 @@ impl ConfigurationStore {
     /// Opens a configuration store at the given path
     pub fn with_location(gcloud_path: PathBuf) -> Result<Self> {
         if !gcloud_path.is_dir() {
-            bail!(Error::ConfigurationStoreNotFound(gcloud_path));
+            return Err(Error::ConfigurationStoreNotFound(gcloud_path));
         }
 
         let configurations_path = gcloud_path.join("configurations");
 
         if !configurations_path.is_dir() {
-            bail!(Error::ConfigurationStoreNotFound(configurations_path));
+            return Err(Error::ConfigurationStoreNotFound(configurations_path));
         }
 
         let mut configurations: HashMap<String, Configuration> = HashMap::new();
@@ -141,12 +140,11 @@ impl ConfigurationStore {
         }
 
         if configurations.is_empty() {
-            bail!(Error::NoConfigurationsFound(configurations_path));
+            return Err(Error::NoConfigurationsFound(configurations_path));
         }
 
         let active = gcloud_path.join("active_config");
-        let active = fs::read_to_string(active)
-            .with_context(|| format!("Determining active configuration in {:?}", gcloud_path))?;
+        let active = fs::read_to_string(active)?;
 
         Ok(ConfigurationStore {
             location: gcloud_path,
@@ -180,14 +178,14 @@ impl ConfigurationStore {
             .ok_or_else(|| Error::UnknownConfiguration(name.to_owned()))?;
 
         let path = self.location.join("active_config");
-        std::fs::write(path, &configuration.name).context("Setting active configuration")?;
+        std::fs::write(path, &configuration.name)?;
 
         self.active = configuration.name.to_owned();
 
         Ok(())
     }
 
-    /// Copy an existing configuration, optionally overriding properties
+    /// Copy an existing configuration, preserving all properties
     pub fn copy(&mut self, src_name: &str, dest_name: &str, force: bool) -> Result<()> {
         let src = self
             .configurations
@@ -195,11 +193,11 @@ impl ConfigurationStore {
             .ok_or_else(|| Error::UnknownConfiguration(src_name.to_owned()))?;
 
         if !Configuration::is_valid_name(dest_name) {
-            bail!(Error::InvalidName(dest_name.to_owned()));
+            return Err(Error::InvalidName(dest_name.to_owned()));
         }
 
         if !force && self.configurations.contains_key(dest_name) {
-            bail!(Error::ExistingConfiguration(dest_name.to_owned()));
+            return Err(Error::ExistingConfiguration(dest_name.to_owned()));
         }
 
         // just copy the file on disk so that any properties which aren't directly supported are maintained
@@ -219,18 +217,16 @@ impl ConfigurationStore {
     /// Create a new configuration
     pub fn create(&mut self, name: &str, properties: &Properties, force: bool) -> Result<()> {
         if !Configuration::is_valid_name(name) {
-            bail!(Error::InvalidName(name.to_owned()));
+            return Err(Error::InvalidName(name.to_owned()));
         }
 
         if !force && self.configurations.contains_key(name) {
-            bail!(Error::ExistingConfiguration(name.to_owned()));
+            return Err(Error::ExistingConfiguration(name.to_owned()));
         }
 
         let filename = self.configurations_path.join(format!("config_{}", name));
-        let file = File::create(&filename).context("Creating configuration file")?;
-        properties
-            .to_writer(file)
-            .context(format!("Writing properties to file {:?}", filename))?;
+        let file = File::create(&filename)?;
+        properties.to_writer(file)?;
 
         self.configurations.insert(
             name.to_owned(),
@@ -250,10 +246,10 @@ impl ConfigurationStore {
             .ok_or_else(|| Error::UnknownConfiguration(name.to_owned()))?;
 
         let path = &configuration.path;
-        let handle = File::open(path).with_context(|| format!("Opening file {:?}", path))?;
+        let handle = File::open(path)?;
         let reader = BufReader::new(handle);
 
-        let properties = Properties::from_reader(reader).context(format!("Reading properties from file {:?}", path))?;
+        let properties = Properties::from_reader(reader)?;
 
         Ok(properties)
     }
@@ -268,11 +264,11 @@ impl ConfigurationStore {
         let active = self.is_active(&src);
 
         if !Configuration::is_valid_name(new_name) {
-            bail!(Error::InvalidName(new_name.to_owned()));
+            return Err(Error::InvalidName(new_name.to_owned()));
         }
 
         if !force && self.configurations.contains_key(new_name) {
-            bail!(Error::ExistingConfiguration(new_name.to_owned()));
+            return Err(Error::ExistingConfiguration(new_name.to_owned()));
         }
 
         let new_value = Configuration {

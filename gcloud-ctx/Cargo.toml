@@ -1,0 +1,22 @@
+[package]
+name = "gcloud-ctx"
+version = "0.1.0"
+authors = ["Adam Rodger <adam.rodger@gmail.com>"]
+edition = "2018"
+description = "A gcloud configuration management library"
+readme = "../README.md"
+homepage = "https://github.com/adamrodger/gcloud-ctx"
+repository = "https://github.com/adamrodger/gcloud-ctx"
+license = "MIT"
+keywords = ["gcloud", "gctx", "gcloud-ctx", "google", "gcp"]
+categories = ["config"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dirs = "3"
+lazy_static = "1"
+regex = "1"
+serde = { version = "1.0", features = ["derive"] }
+serde_ini = "0.2.0"
+thiserror = "1"

@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use crate::Error;
 use serde::{Deserialize, Serialize};
 use serde_ini::{Serializer, Writer};
 use std::io::{Read, Write};
@@ -17,14 +17,17 @@ pub struct Properties {
 
 impl Properties {
     /// Deserialise properties from the given reader
-    pub fn from_reader<R: Read>(reader: R) -> Result<Self> {
-        serde_ini::de::from_read(reader).context("Deserialising properties")
+    pub fn from_reader<R: Read>(reader: R) -> Result<Self, Error> {
+        let properties = serde_ini::de::from_read(reader)?;
+        Ok(properties)
     }
 
     /// Serialise the properties to the given writer
-    pub fn to_writer<W: Write>(&self, writer: W) -> Result<()> {
+    pub fn to_writer<W: Write>(&self, writer: W) -> Result<(), Error> {
         let mut ser = Serializer::new(Writer::new(writer, serde_ini::LineEnding::Linefeed));
-        self.serialize(&mut ser).context("Serialising properties")
+        self.serialize(&mut ser)?;
+
+        Ok(())
     }
 }
 

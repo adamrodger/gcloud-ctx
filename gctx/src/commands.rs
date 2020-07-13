@@ -1,5 +1,5 @@
-use crate::{configuration::ConfigurationStore, properties::PropertiesBuilder};
 use anyhow::{Context, Result};
+use gcloud_ctx::{ConfigurationStore, PropertiesBuilder};
 
 /// List the available configurations with an indicator of the active one
 pub fn list() -> Result<()> {
