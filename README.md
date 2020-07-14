@@ -1,11 +1,7 @@
 # gctx
 
-`gctx`:
 ![Build and Test](https://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)
-![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)\
-`gcloud-ctx`:
-[![Crate](https://img.shields.io/crates/v/gcloud-ctx.svg)](https://crates.io/crates/gcloud-ctx)
-[![API](https://docs.rs/gcloud-ctx/badge.svg)](https://docs.rs/gcloud-ctx)
+![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)
 
 A fast replacement for [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
 written in Rust for managing [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
