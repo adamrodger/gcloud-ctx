@@ -45,6 +45,7 @@ pub fn run(opts: Opts) -> Result<()> {
                 commands::create(&name, &project, &account, &zone, region.as_deref(), force, activate)?;
             }
             SubCommand::Current => commands::current()?,
+            SubCommand::Delete { name } => commands::delete(&name)?,
             SubCommand::Describe { name } => commands::describe(&name)?,
             SubCommand::List => commands::list()?,
             SubCommand::Rename {

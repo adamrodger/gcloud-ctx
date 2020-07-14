@@ -239,6 +239,24 @@ impl ConfigurationStore {
         Ok(())
     }
 
+    /// Delete a configuration
+    pub fn delete(&mut self, name: &str) -> Result<()> {
+        let configuration = self
+            .find_by_name(name)
+            .ok_or_else(|| Error::UnknownConfiguration(name.to_owned()))?;
+
+        if self.is_active(&configuration) {
+            return Err(Error::DeleteActiveConfiguration);
+        }
+
+        let path = &configuration.path;
+        fs::remove_file(&path)?;
+
+        self.configurations.remove(name);
+
+        Ok(())
+    }
+
     /// Describe the properties in the given configuration
     pub fn describe(&self, name: &str) -> Result<Properties> {
         let configuration = self

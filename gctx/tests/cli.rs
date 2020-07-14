@@ -604,3 +604,59 @@ fn copy_invalid_name_fails() {
 
     tmp.close().unwrap();
 }
+
+#[test]
+fn delete_known_configuration_succeeds() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .with_config("bar")
+        .build()
+        .unwrap();
+
+    cli.arg("delete").arg("bar");
+
+    cli.assert()
+        .success()
+        .stdout("Successfully deleted configuration 'bar'\n");
+
+    tmp.child("configurations/config_bar").assert(predicate::path::missing());
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn delete_active_configuration_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    cli.arg("delete").arg("foo");
+
+    cli.assert()
+        .failure()
+        .stderr("Error: Unable to delete the configuration because it is currently active\n");
+
+    tmp.child("configurations/config_foo").assert(predicate::path::exists());
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn delete_unknown_configuration_fails() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    cli.arg("delete").arg("unknown");
+
+    cli.assert()
+        .failure()
+        .stderr("Error: Unable to find configuration 'unknown'\n");
+
+    tmp.close().unwrap();
+}

@@ -68,6 +68,12 @@ pub enum SubCommand {
     /// Show the current configuration
     Current,
 
+    /// Delete a configuration
+    Delete {
+        /// Name of the configuration to delete
+        name: String
+    },
+
     /// Describe all the properties in a configuration
     Describe {
         /// Name of the configuration

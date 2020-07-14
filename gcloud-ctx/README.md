@@ -44,6 +44,9 @@ store.copy("foo", "bar", true)?;
 // rename an existing configuration, with force overwrite
 store.rename("foo", "bar", true)?;
 
+// delete a configuration
+store.delete("foo")?;
+
 // get properties of a configuration
 let properties = store.describe(name)?;
 properties.to_writer(std::io::stdout())

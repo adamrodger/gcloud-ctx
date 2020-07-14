@@ -21,6 +21,10 @@ pub enum Error {
     #[error("Unable to find the gcloud configuration directory at {0}\n\nIs gcloud installed?")]
     ConfigurationStoreNotFound(PathBuf),
 
+    /// Attempted to delete the active configuration
+    #[error("Unable to delete the configuration because it is currently active")]
+    DeleteActiveConfiguration,
+
     /// Error loading properties from a configuration
     #[error("Unable to load properties")]
     LoadingProperties(#[from] serde_ini::de::Error),

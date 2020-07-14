@@ -1,6 +1,6 @@
 [package]
 name = "gctx"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Adam Rodger <crates@adamrodger.com>"]
 edition = "2018"
 description = "A gcloud configuration management utility"

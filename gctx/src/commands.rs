@@ -79,6 +79,15 @@ pub fn current() -> Result<()> {
     Ok(())
 }
 
+/// Delete a configuration
+pub fn delete(name: &str) -> Result<()> {
+    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    store.delete(name)?;
+
+    println!("Successfully deleted configuration '{}'", name);
+    Ok(())
+}
+
 /// Describe all the properties in the given configuration
 pub fn describe(name: &str) -> Result<()> {
     let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;

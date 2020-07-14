@@ -83,6 +83,9 @@ gctx describe name      # describe a named configuration
 gctx rename old-name new-name
 gctx rename --force old-name existing-name   # use force to overwrite an existing configuration
 
+# delete a configuration. note: you can't delete the active configuration
+gctx delete my-config
+
 # show help and usage
 gctx --help
 ```
