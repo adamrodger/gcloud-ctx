@@ -1,19 +1,19 @@
-# `gctx` - A `gcloud` configuration utility
+# gctx
 
 `gctx`:
 ![Build and Test](https://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)
-![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)
+![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)\
 `gcloud-ctx`:
 [![Crate](https://img.shields.io/crates/v/gcloud-ctx.svg)](https://crates.io/crates/gcloud-ctx)
 [![API](https://docs.rs/gcloud-ctx/badge.svg)](https://docs.rs/gcloud-ctx)
 
-Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
+A fast replacement for [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
+written in Rust for managing [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
 ## Motivation
 
-I'm often working with multiple GCP projects with a variety of different settings (e.g. default compute zone).
-To do this, I take advantage of the [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
-command in the standard `gcloud` tooling. However, this has two major problems:
+I'm often working with multiple GCP projects with a variety of different settings (e.g. default compute zone).However,
+the standard `gcloud` tool has two major problems:
 
 - It's quite a lot of typing if you're switching often. Sure, an alias can help, but...
 - `gcloud` is slow to initialise which makes it annoying to use and to add to your default prompt
@@ -39,7 +39,7 @@ impressed, I thought it would make a great starter project.
 Get the latest stable version of Rust via [`rustup`](https://rustup.rs/) and run:
 
 ```bash
-cargo install --path .
+cargo install gctx
 # gctx will now be on your PATH
 ```
 
@@ -93,5 +93,11 @@ gctx delete my-config
 # show help and usage
 gctx --help
 ```
+
+## License
+
+`gctx` is distributed under the terms of the MIT license
+
+## Disclaimer
 
 **Note**: This project is independent and not afilliated with Google in any way
