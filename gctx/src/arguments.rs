@@ -71,7 +71,7 @@ pub enum SubCommand {
     /// Delete a configuration
     Delete {
         /// Name of the configuration to delete
-        name: String
+        name: String,
     },
 
     /// Describe all the properties in a configuration

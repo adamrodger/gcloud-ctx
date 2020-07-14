@@ -620,7 +620,8 @@ fn delete_known_configuration_succeeds() {
         .success()
         .stdout("Successfully deleted configuration 'bar'\n");
 
-    tmp.child("configurations/config_bar").assert(predicate::path::missing());
+    tmp.child("configurations/config_bar")
+        .assert(predicate::path::missing());
 
     tmp.close().unwrap();
 }

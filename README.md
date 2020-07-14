@@ -1,7 +1,11 @@
 # `gctx` - A `gcloud` configuration utility
 
-[![Build and Test](http://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)](https://github.com/adamrodger/gcloud-ctx/actions?query=workflow%3A%22Build+and+Test%22)
+`gctx`:
+![Build and Test](https://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)
 ![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)
+`gcloud-ctx`:
+[![Crate](https://img.shields.io/crates/v/gcloud-ctx.svg)](https://crates.io/crates/gcloud-ctx)
+[![API](https://docs.rs/gcloud-ctx/badge.svg)](https://docs.rs/gcloud-ctx)
 
 Manage [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
