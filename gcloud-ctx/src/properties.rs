@@ -125,25 +125,25 @@ impl PropertiesBuilder {
     }
 
     /// Set the project property
-    pub fn with_project(&mut self, project: &str) -> &mut Self {
+    pub fn project(&mut self, project: &str) -> &mut Self {
         self.project = Some(project.to_owned());
         self
     }
 
     /// Set the account property
-    pub fn with_account(&mut self, account: &str) -> &mut Self {
+    pub fn account(&mut self, account: &str) -> &mut Self {
         self.account = Some(account.to_owned());
         self
     }
 
     /// Set the zone property
-    pub fn with_zone(&mut self, zone: &str) -> &mut Self {
+    pub fn zone(&mut self, zone: &str) -> &mut Self {
         self.zone = Some(zone.to_owned());
         self
     }
 
     /// Set the region property
-    pub fn with_region(&mut self, region: &str) -> &mut Self {
+    pub fn region(&mut self, region: &str) -> &mut Self {
         self.region = Some(region.to_owned());
         self
     }

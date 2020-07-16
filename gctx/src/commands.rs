@@ -52,10 +52,10 @@ pub fn create(
     let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     let mut builder = PropertiesBuilder::default();
 
-    builder.with_project(project).with_account(account).with_zone(zone);
+    builder.project(project).account(account).zone(zone);
 
     if let Some(region) = region {
-        builder.with_region(region);
+        builder.region(region);
     }
 
     let properties = builder.build();
