@@ -4,6 +4,8 @@
 [![API](https://docs.rs/gcloud-ctx/badge.svg)](https://docs.rs/gcloud-ctx)
 [![License](https://img.shields.io/github/license/adamrodger/gcloud-ctx)](https://github.com/adamrodger/gcloud-ctx)
 
+<!-- cargo-sync-readme start -->
+
 A Rust implementation of [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
 for managing different `gcloud` configurations for Google Cloud Platform. This is the library containing the core logic
 which is used to build the associated [`gctx`](https://github.com/adamrodger/gctx) command line utility.
@@ -15,42 +17,45 @@ which is used to build the associated [`gctx`](https://github.com/adamrodger/gct
 ```rust
 use gcloud_ctx::ConfigurationStore;
 
-let mut store = ConfigurationStore::with_default_location()?;
+let mut store = ConfigurationStore::with_default_location().unwrap();
+
+// create a new configuration, optionally with a force overwrite
+use gcloud_ctx::PropertiesBuilder;
+let properties = PropertiesBuilder::default()
+    .project("my-project")
+    .account("a.user@example.org")
+    .zone("europe-west1-d")
+    .region("europe-west1")
+    .build();
+
+store.create("foo", &properties, true).unwrap();
 
 // list configurations
 for config in store.configurations() {
     println!("{}", config.name());
 }
 
+// activate a configuration by name
+store.activate("foo").unwrap();
+
 // get the active configuration
 println!("{}", store.active());
 
-// activate a configuration by name
-store.activate("foo")?;
-
-// create a new configuration, optionally with a force overwrite
-let properties = PropertiesBuilder::default()
-    .with_project("my-project")
-    .with_account("a.user@example.org")
-    .with_zone("europe-west1-d")
-    .with_region("europe-west1")
-    .build();
-
-store.create("foo", &properties, true)?;
-
 // copy an existing configuration, with force overwrite
-store.copy("foo", "bar", true)?;
+store.copy("foo", "bar", true).unwrap();
 
 // rename an existing configuration, with force overwrite
-store.rename("foo", "bar", true)?;
+store.rename("bar", "baz", true).unwrap();
 
 // delete a configuration
-store.delete("foo")?;
+store.delete("baz").unwrap();
 
 // get properties of a configuration
-let properties = store.describe(name)?;
-properties.to_writer(std::io::stdout())
+let properties = store.describe("foo").unwrap();
+properties.to_writer(std::io::stdout()).unwrap()
 ```
+
+<!-- cargo-sync-readme end -->
 
 ## License
 

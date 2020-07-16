@@ -3,30 +3,12 @@
 [![Build and Test](https://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)](https://github.com/adamrodger/gcloud-ctx/actions)
 [![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)](https://github.com/adamrodger/gcloud-ctx/releases/latest)
 
+<!-- cargo-sync-readme start -->
+
 A fast replacement for [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
 written in Rust for managing [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
-## Motivation
-
-I'm often working with multiple GCP projects with a variety of different settings (e.g. default compute zone).However,
-the standard `gcloud` tool has two major problems:
-
-- It's quite a lot of typing if you're switching often. Sure, an alias can help, but...
-- `gcloud` is slow to initialise which makes it annoying to use and to add to your default prompt
-
-After having used [`kubectx`](https://github.com/ahmetb/kubectx) to solve a similar problem switching between
-Kubernetes contexts easily, I searched for a similar tool that could easily switch between `gcloud` configurations
-but couldn't find anything. So, having spent a while learning [Rust](https://www.rust-lang.org/) and being incredibly
-impressed, I thought it would make a great starter project.
-
-## Goals
-
-`gctx` aims to achieve similar goals to `kubectx`, such as:
-
-- Extremely fast switching between different `gcloud` configurations
-- Cross platform
-- Shorter to type than `gcloud config configurations activate` 😄
-- Fuzzy finding using `fzf` (if installed)
+**Note**: This project is independent and not afilliated with Google in any way
 
 ## Installation
 
@@ -90,10 +72,30 @@ gctx delete my-config
 gctx --help
 ```
 
+<!-- cargo-sync-readme end -->
+
+## Motivation
+
+I'm often working with multiple GCP projects with a variety of different settings (e.g. default compute zone).However,
+the standard `gcloud` tool has two major problems:
+
+- It's quite a lot of typing if you're switching often. Sure, an alias can help, but...
+- `gcloud` is slow to initialise which makes it annoying to use and to add to your default prompt
+
+After having used [`kubectx`](https://github.com/ahmetb/kubectx) to solve a similar problem switching between
+Kubernetes contexts easily, I searched for a similar tool that could easily switch between `gcloud` configurations
+but couldn't find anything. So, having spent a while learning [Rust](https://www.rust-lang.org/) and being incredibly
+impressed, I thought it would make a great starter project.
+
+## Goals
+
+`gctx` aims to achieve similar goals to `kubectx`, such as:
+
+- Extremely fast switching between different `gcloud` configurations
+- Cross platform
+- Shorter to type than `gcloud config configurations activate` 😄
+- Fuzzy finding using `fzf` (if installed)
+
 ## License
 
 `gctx` is distributed under the terms of the MIT license
-
-## Disclaimer
-
-**Note**: This project is independent and not afilliated with Google in any way

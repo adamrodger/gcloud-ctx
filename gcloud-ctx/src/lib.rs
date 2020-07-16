@@ -1,3 +1,52 @@
+//! A Rust implementation of [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
+//! for managing different `gcloud` configurations for Google Cloud Platform. This is the library containing the core logic
+//! which is used to build the associated [`gctx`](https://github.com/adamrodger/gctx) command line utility.
+//!
+//! **Note**: `gcloud-ctx` is independent and not affiliated with Google in any way.
+//!
+//! ## Usage
+//!
+//! ```rust
+//! use gcloud_ctx::ConfigurationStore;
+//!
+//! let mut store = ConfigurationStore::with_default_location().unwrap();
+//!
+//! // create a new configuration, optionally with a force overwrite
+//! use gcloud_ctx::PropertiesBuilder;
+//! let properties = PropertiesBuilder::default()
+//!     .project("my-project")
+//!     .account("a.user@example.org")
+//!     .zone("europe-west1-d")
+//!     .region("europe-west1")
+//!     .build();
+//!
+//! store.create("foo", &properties, true).unwrap();
+//!
+//! // list configurations
+//! for config in store.configurations() {
+//!     println!("{}", config.name());
+//! }
+//!
+//! // activate a configuration by name
+//! store.activate("foo").unwrap();
+//!
+//! // get the active configuration
+//! println!("{}", store.active());
+//!
+//! // copy an existing configuration, with force overwrite
+//! store.copy("foo", "bar", true).unwrap();
+//!
+//! // rename an existing configuration, with force overwrite
+//! store.rename("bar", "baz", true).unwrap();
+//!
+//! // delete a configuration
+//! store.delete("baz").unwrap();
+//!
+//! // get properties of a configuration
+//! let properties = store.describe("foo").unwrap();
+//! properties.to_writer(std::io::stdout()).unwrap()
+//! ```
+
 mod configuration;
 mod properties;
 
