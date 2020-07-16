@@ -99,3 +99,9 @@ impressed, I thought it would make a great starter project.
 ## License
 
 `gctx` is distributed under the terms of the MIT license
+
+## Previous `gctx` crate
+
+Note that versions prior to 0.3.0 of thw `gctx` crate are unrelated works by a previous author
+that were yanked and abandoned. The previous author kindly passed the crate name over to me so
+that I can reuse it. Thank you again!
