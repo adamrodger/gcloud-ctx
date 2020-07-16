@@ -17,7 +17,6 @@
 //! # std::fs::create_dir(&configs).unwrap();
 //! # File::create(configs.join("config_foo")).unwrap();
 //! # std::env::set_var("CLOUDSDK_CONFIG", tmp.path());
-//! #
 //! use gcloud_ctx::ConfigurationStore;
 //!
 //! let mut store = ConfigurationStore::with_default_location()?;
@@ -56,7 +55,6 @@
 //! // get properties of a configuration
 //! let properties = store.describe("foo")?;
 //! properties.to_writer(std::io::stdout())?;
-//! #
 //! # Ok::<(), gcloud_ctx::Error>(())
 //! ```
 

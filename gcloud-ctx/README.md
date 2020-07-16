@@ -15,7 +15,6 @@ which is used to build the associated [`gctx`](https://github.com/adamrodger/gct
 ## Usage
 
 ```rust
-#
 use gcloud_ctx::ConfigurationStore;
 
 let mut store = ConfigurationStore::with_default_location()?;
@@ -54,7 +53,6 @@ store.delete("baz")?;
 // get properties of a configuration
 let properties = store.describe("foo")?;
 properties.to_writer(std::io::stdout())?;
-#
 ```
 
 <!-- cargo-sync-readme end -->
