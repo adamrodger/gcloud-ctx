@@ -18,7 +18,7 @@ Get the latest stable version of Rust via [`rustup`](https://rustup.rs/) and run
 
 ```bash
 cargo install gctx
-# gctx will now be on your PATH
+## gctx will now be on your PATH
 ```
 
 ### Pre-Built Binaries
@@ -34,19 +34,19 @@ Grab the [latest binary](https://github.com/adamrodger/gcloud-ctx/releases/lates
 ## Usage
 
 ```bash
-# show the current configuration (useful for adding to default prompt)
+## show the current configuration (useful for adding to default prompt)
 gctx current
 gctx          # shorthand, just omit current
 
-# list all configurations
+## list all configurations
 gctx list
 
-# activate a different configuration
+## activate a different configuration
 gctx my-config
 gctx activate my-config   # explicitly activate, e.g. if your configuration name clashes with a gctx command
 gctx activate             # if fzf is installed, you can omit the name and select from a list
 
-# create (and optionally activate) a new configuration
+## create (and optionally activate) a new configuration
 gctx create my-config --project foo \
                       --account a.user@example.org \
                       --zone europe-west1-d \
@@ -54,21 +54,21 @@ gctx create my-config --project foo \
                       --force \
                       --activate
 
-# copy an existing configuration
+## copy an existing configuration
 gctx copy src-name dest-name --force --activate
 
-# show the properties of a configuration (like gcloud config configurations describe)
+## show the properties of a configuration (like gcloud config configurations describe)
 gctx describe           # defaults to the current configuration
 gctx describe name      # describe a named configuration
 
-# rename a configuration
+## rename a configuration
 gctx rename old-name new-name
 gctx rename --force old-name existing-name   # use force to overwrite an existing configuration
 
-# delete a configuration. note: you can't delete the active configuration
+## delete a configuration. note: you can't delete the active configuration
 gctx delete my-config
 
-# show help and usage
+## show help and usage
 gctx --help
 ```
 

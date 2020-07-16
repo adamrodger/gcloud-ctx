@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! A Rust implementation of [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
 //! for managing different `gcloud` configurations for Google Cloud Platform. This is the library containing the core logic
 //! which is used to build the associated [`gctx`](https://github.com/adamrodger/gctx) command line utility.
@@ -7,9 +9,18 @@
 //! ## Usage
 //!
 //! ```rust
+//! # // use a temp dir so that running doc tests doesn't change your real configurations
+//! # use std::fs::File;
+//! # let tmp = tempfile::tempdir().unwrap();
+//! # File::create(tmp.path().join("active_config")).unwrap();
+//! # let configs = tmp.path().join("configurations");
+//! # std::fs::create_dir(&configs).unwrap();
+//! # File::create(configs.join("config_foo")).unwrap();
+//! # std::env::set_var("CLOUDSDK_CONFIG", tmp.path());
+//! #
 //! use gcloud_ctx::ConfigurationStore;
 //!
-//! let mut store = ConfigurationStore::with_default_location().unwrap();
+//! let mut store = ConfigurationStore::with_default_location()?;
 //!
 //! // create a new configuration, optionally with a force overwrite
 //! use gcloud_ctx::PropertiesBuilder;
@@ -20,7 +31,7 @@
 //!     .region("europe-west1")
 //!     .build();
 //!
-//! store.create("foo", &properties, true).unwrap();
+//! store.create("foo", &properties, true)?;
 //!
 //! // list configurations
 //! for config in store.configurations() {
@@ -28,23 +39,25 @@
 //! }
 //!
 //! // activate a configuration by name
-//! store.activate("foo").unwrap();
+//! store.activate("foo")?;
 //!
 //! // get the active configuration
 //! println!("{}", store.active());
 //!
 //! // copy an existing configuration, with force overwrite
-//! store.copy("foo", "bar", true).unwrap();
+//! store.copy("foo", "bar", true)?;
 //!
 //! // rename an existing configuration, with force overwrite
-//! store.rename("bar", "baz", true).unwrap();
+//! store.rename("bar", "baz", true)?;
 //!
 //! // delete a configuration
-//! store.delete("baz").unwrap();
+//! store.delete("baz")?;
 //!
 //! // get properties of a configuration
-//! let properties = store.describe("foo").unwrap();
-//! properties.to_writer(std::io::stdout()).unwrap()
+//! let properties = store.describe("foo")?;
+//! properties.to_writer(std::io::stdout())?;
+//! #
+//! # Ok::<(), gcloud_ctx::Error>(())
 //! ```
 
 mod configuration;

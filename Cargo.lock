@@ -215,6 +215,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_ini",
+ "tempfile",
  "thiserror",
 ]
 

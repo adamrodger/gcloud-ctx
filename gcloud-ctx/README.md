@@ -15,9 +15,10 @@ which is used to build the associated [`gctx`](https://github.com/adamrodger/gct
 ## Usage
 
 ```rust
+#
 use gcloud_ctx::ConfigurationStore;
 
-let mut store = ConfigurationStore::with_default_location().unwrap();
+let mut store = ConfigurationStore::with_default_location()?;
 
 // create a new configuration, optionally with a force overwrite
 use gcloud_ctx::PropertiesBuilder;
@@ -28,7 +29,7 @@ let properties = PropertiesBuilder::default()
     .region("europe-west1")
     .build();
 
-store.create("foo", &properties, true).unwrap();
+store.create("foo", &properties, true)?;
 
 // list configurations
 for config in store.configurations() {
@@ -36,23 +37,24 @@ for config in store.configurations() {
 }
 
 // activate a configuration by name
-store.activate("foo").unwrap();
+store.activate("foo")?;
 
 // get the active configuration
 println!("{}", store.active());
 
 // copy an existing configuration, with force overwrite
-store.copy("foo", "bar", true).unwrap();
+store.copy("foo", "bar", true)?;
 
 // rename an existing configuration, with force overwrite
-store.rename("bar", "baz", true).unwrap();
+store.rename("bar", "baz", true)?;
 
 // delete a configuration
-store.delete("baz").unwrap();
+store.delete("baz")?;
 
 // get properties of a configuration
-let properties = store.describe("foo").unwrap();
-properties.to_writer(std::io::stdout()).unwrap()
+let properties = store.describe("foo")?;
+properties.to_writer(std::io::stdout())?;
+#
 ```
 
 <!-- cargo-sync-readme end -->
