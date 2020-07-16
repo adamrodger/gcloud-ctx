@@ -16,7 +16,7 @@ categories = ["command-line-utilities", "config"]
 [dependencies]
 anyhow = "1"
 clap = "3.0.0-beta.1"
-gcloud-ctx = { path = "../gcloud-ctx" }
+gcloud-ctx = { path = "../gcloud-ctx", version = "0.2" }
 which = "4"
 
 [dev-dependencies]
