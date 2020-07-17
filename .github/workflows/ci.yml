@@ -1,6 +1,6 @@
 on: [push, pull_request]
 
-name: Continuous integration
+name: Build and Test
 
 env:
   CARGO_TERM_COLOR: always
