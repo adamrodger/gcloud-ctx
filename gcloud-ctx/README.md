@@ -15,7 +15,7 @@ which is used to build the associated [`gctx`](https://github.com/adamrodger/gct
 ## Usage
 
 ```rust
-use gcloud_ctx::ConfigurationStore;
+use gcloud_ctx::{ConfigurationStore, ConflictAction};
 
 let mut store = ConfigurationStore::with_default_location()?;
 
@@ -28,7 +28,7 @@ let properties = PropertiesBuilder::default()
     .region("europe-west1")
     .build();
 
-store.create("foo", &properties, true)?;
+store.create("foo", &properties, ConflictAction::Overwrite)?;
 
 // list configurations
 for config in store.configurations() {
@@ -42,10 +42,10 @@ store.activate("foo")?;
 println!("{}", store.active());
 
 // copy an existing configuration, with force overwrite
-store.copy("foo", "bar", true)?;
+store.copy("foo", "bar", ConflictAction::Overwrite)?;
 
 // rename an existing configuration, with force overwrite
-store.rename("bar", "baz", true)?;
+store.rename("bar", "baz", ConflictAction::Overwrite)?;
 
 // delete a configuration
 store.delete("baz")?;
