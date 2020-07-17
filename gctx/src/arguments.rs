@@ -1,7 +1,8 @@
-use clap::Clap;
+use clap::{crate_version, Clap};
 
 /// gcloud configuration manager
 #[derive(Clap)]
+#[clap(version = crate_version!())]
 pub struct Opts {
     /// Switch to this context (shorthand for activate, ignores subsequent arguments)
     pub context: Option<String>,
