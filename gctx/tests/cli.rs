@@ -425,7 +425,7 @@ fn create_without_force_fails() {
 }
 
 #[test]
-fn describe_shows_supported_properties() {
+fn describe_with_name_shows_supported_properties() {
     let (mut cli, tmp) = TempConfigurationStore::new()
         .unwrap()
         .with_config_activated("foo")
@@ -446,6 +446,35 @@ fn describe_shows_supported_properties() {
     tmp.child("configurations/config_foo").write_str(&contents).unwrap();
 
     cli.arg("describe").arg("foo");
+
+    cli.assert().success().stdout(contents);
+
+    tmp.close().unwrap();
+}
+
+#[test]
+fn describe_without_name_shows_active_configuration() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .with_config("bar")
+        .build()
+        .unwrap();
+
+    let contents = [
+        "[core]",
+        "project=my-project",
+        "account=a.user@example.org",
+        "[compute]",
+        "zone=europe-west1-d",
+        "region=us-east1",
+        "",
+    ]
+    .join("\n");
+
+    tmp.child("configurations/config_foo").write_str(&contents).unwrap();
+
+    cli.arg("describe");
 
     cli.assert().success().stdout(contents);
 

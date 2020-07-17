@@ -121,7 +121,7 @@ pub fn run(opts: Opts) -> Result<()> {
             }
             SubCommand::Current => commands::current()?,
             SubCommand::Delete { name } => commands::delete(&name)?,
-            SubCommand::Describe { name } => commands::describe(&name)?,
+            SubCommand::Describe { name } => commands::describe(name.as_deref())?,
             SubCommand::List => commands::list()?,
             SubCommand::Rename {
                 old_name,

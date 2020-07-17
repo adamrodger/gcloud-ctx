@@ -77,8 +77,8 @@ pub enum SubCommand {
 
     /// Describe all the properties in a configuration
     Describe {
-        /// Name of the configuration
-        name: String,
+        /// Name of the configuration, defaults to current
+        name: Option<String>,
     },
 
     /// List all available configurations
