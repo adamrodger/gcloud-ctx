@@ -17,7 +17,7 @@
 //! # std::fs::create_dir(&configs).unwrap();
 //! # File::create(configs.join("config_foo")).unwrap();
 //! # std::env::set_var("CLOUDSDK_CONFIG", tmp.path());
-//! use gcloud_ctx::ConfigurationStore;
+//! use gcloud_ctx::{ConfigurationStore, ConflictAction};
 //!
 //! let mut store = ConfigurationStore::with_default_location()?;
 //!
@@ -30,7 +30,7 @@
 //!     .region("europe-west1")
 //!     .build();
 //!
-//! store.create("foo", &properties, true)?;
+//! store.create("foo", &properties, ConflictAction::Overwrite)?;
 //!
 //! // list configurations
 //! for config in store.configurations() {
@@ -44,10 +44,10 @@
 //! println!("{}", store.active());
 //!
 //! // copy an existing configuration, with force overwrite
-//! store.copy("foo", "bar", true)?;
+//! store.copy("foo", "bar", ConflictAction::Overwrite)?;
 //!
 //! // rename an existing configuration, with force overwrite
-//! store.rename("bar", "baz", true)?;
+//! store.rename("bar", "baz", ConflictAction::Overwrite)?;
 //!
 //! // delete a configuration
 //! store.delete("baz")?;
@@ -61,7 +61,7 @@
 mod configuration;
 mod properties;
 
-pub use configuration::{Configuration, ConfigurationStore};
+pub use configuration::*;
 pub use properties::*;
 
 use std::path::PathBuf;

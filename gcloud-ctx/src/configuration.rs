@@ -53,6 +53,26 @@ impl PartialEq for Configuration {
 
 impl Eq for Configuration {}
 
+/// Action to perform when a naming conflict occurs
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum ConflictAction {
+    /// Abort the operation
+    Abort,
+
+    /// Overwrite the existing configuration
+    Overwrite,
+}
+
+impl From<bool> for ConflictAction {
+    fn from(value: bool) -> Self {
+        if value {
+            ConflictAction::Overwrite
+        } else {
+            ConflictAction::Abort
+        }
+    }
+}
+
 #[derive(Debug)]
 /// Represents the store of gcloud configurations
 pub struct ConfigurationStore {
@@ -186,7 +206,7 @@ impl ConfigurationStore {
     }
 
     /// Copy an existing configuration, preserving all properties
-    pub fn copy(&mut self, src_name: &str, dest_name: &str, force: bool) -> Result<()> {
+    pub fn copy(&mut self, src_name: &str, dest_name: &str, conflict: ConflictAction) -> Result<()> {
         let src = self
             .configurations
             .get(src_name)
@@ -196,7 +216,7 @@ impl ConfigurationStore {
             return Err(Error::InvalidName(dest_name.to_owned()));
         }
 
-        if !force && self.configurations.contains_key(dest_name) {
+        if conflict == ConflictAction::Abort && self.configurations.contains_key(dest_name) {
             return Err(Error::ExistingConfiguration(dest_name.to_owned()));
         }
 
@@ -215,12 +235,12 @@ impl ConfigurationStore {
     }
 
     /// Create a new configuration
-    pub fn create(&mut self, name: &str, properties: &Properties, force: bool) -> Result<()> {
+    pub fn create(&mut self, name: &str, properties: &Properties, conflict: ConflictAction) -> Result<()> {
         if !Configuration::is_valid_name(name) {
             return Err(Error::InvalidName(name.to_owned()));
         }
 
-        if !force && self.configurations.contains_key(name) {
+        if conflict == ConflictAction::Abort && self.configurations.contains_key(name) {
             return Err(Error::ExistingConfiguration(name.to_owned()));
         }
 
@@ -273,7 +293,7 @@ impl ConfigurationStore {
     }
 
     /// Rename a configuration
-    pub fn rename(&mut self, old_name: &str, new_name: &str, force: bool) -> Result<()> {
+    pub fn rename(&mut self, old_name: &str, new_name: &str, conflict: ConflictAction) -> Result<()> {
         let src = self
             .configurations
             .get(old_name)
@@ -285,7 +305,7 @@ impl ConfigurationStore {
             return Err(Error::InvalidName(new_name.to_owned()));
         }
 
-        if !force && self.configurations.contains_key(new_name) {
+        if conflict == ConflictAction::Abort && self.configurations.contains_key(new_name) {
             return Err(Error::ExistingConfiguration(new_name.to_owned()));
         }
 

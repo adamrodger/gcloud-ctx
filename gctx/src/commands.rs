@@ -1,5 +1,25 @@
 use anyhow::{Context, Result};
-use gcloud_ctx::{ConfigurationStore, PropertiesBuilder};
+use gcloud_ctx::{ConfigurationStore, ConflictAction, PropertiesBuilder};
+
+/// Used to control whether to activate a configuration after creation
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PostCreation {
+    /// Ignore the new configuration
+    Noop,
+
+    /// Activate the new configuration
+    Activate,
+}
+
+impl From<bool> for PostCreation {
+    fn from(value: bool) -> Self {
+        if value {
+            PostCreation::Activate
+        } else {
+            PostCreation::Noop
+        }
+    }
+}
 
 /// List the available configurations with an indicator of the active one
 pub fn list() -> Result<()> {
@@ -24,14 +44,14 @@ pub fn activate(name: &str) -> Result<()> {
     Ok(())
 }
 
-/// Copy an existing configuration, optionally overriding properties
-pub fn copy(src_name: &str, dest_name: &str, force: bool, activate: bool) -> Result<()> {
+/// Copy an existing configuration
+pub fn copy(src_name: &str, dest_name: &str, conflict: ConflictAction, activate: PostCreation) -> Result<()> {
     let mut store = ConfigurationStore::with_default_location()?;
-    store.copy(src_name, dest_name, force)?;
+    store.copy(src_name, dest_name, conflict)?;
 
     println!("Successfully copied configuration '{}' to '{}'", src_name, dest_name);
 
-    if activate {
+    if activate == PostCreation::Activate {
         store.activate(dest_name)?;
         println!("Configuration '{}' is now active", dest_name);
     }
@@ -46,8 +66,8 @@ pub fn create(
     account: &str,
     zone: &str,
     region: Option<&str>,
-    force: bool,
-    activate: bool,
+    conflict: ConflictAction,
+    activate: PostCreation,
 ) -> Result<()> {
     let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
     let mut builder = PropertiesBuilder::default();
@@ -60,11 +80,11 @@ pub fn create(
 
     let properties = builder.build();
 
-    store.create(name, &properties, force)?;
+    store.create(name, &properties, conflict)?;
 
     println!("Successfully created configuration '{}'", name);
 
-    if activate {
+    if activate == PostCreation::Activate {
         store.activate(name)?;
         println!("Configuration '{}' is now active", name);
     }
@@ -101,9 +121,9 @@ pub fn describe(name: &str) -> Result<()> {
 }
 
 /// Rename a configuration
-pub fn rename(old_name: &str, new_name: &str, force: bool) -> Result<()> {
+pub fn rename(old_name: &str, new_name: &str, conflict: ConflictAction) -> Result<()> {
     let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
-    store.rename(old_name, new_name, force)?;
+    store.rename(old_name, new_name, conflict)?;
 
     println!("Successfully renamed configuration '{}' to '{}'", old_name, new_name);
 

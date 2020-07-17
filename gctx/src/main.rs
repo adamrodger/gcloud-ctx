@@ -98,7 +98,7 @@ pub fn run(opts: Opts) -> Result<()> {
                 activate,
                 force,
             } => {
-                commands::copy(&src_name, &dest_name, force, activate)?;
+                commands::copy(&src_name, &dest_name, force.into(), activate.into())?;
             }
             SubCommand::Create {
                 name,
@@ -109,7 +109,15 @@ pub fn run(opts: Opts) -> Result<()> {
                 activate,
                 force,
             } => {
-                commands::create(&name, &project, &account, &zone, region.as_deref(), force, activate)?;
+                commands::create(
+                    &name,
+                    &project,
+                    &account,
+                    &zone,
+                    region.as_deref(),
+                    force.into(),
+                    activate.into(),
+                )?;
             }
             SubCommand::Current => commands::current()?,
             SubCommand::Delete { name } => commands::delete(&name)?,
@@ -119,7 +127,7 @@ pub fn run(opts: Opts) -> Result<()> {
                 old_name,
                 new_name,
                 force,
-            } => commands::rename(&old_name, &new_name, force)?,
+            } => commands::rename(&old_name, &new_name, force.into())?,
         }
     } else {
         commands::current()?;
