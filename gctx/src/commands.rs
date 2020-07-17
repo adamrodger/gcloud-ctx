@@ -111,7 +111,7 @@ pub fn delete(name: &str) -> Result<()> {
 /// Describe all the properties in the given configuration
 pub fn describe(name: Option<&str>) -> Result<()> {
     let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
-    let name = name.unwrap_or(store.active());
+    let name = name.unwrap_or_else(|| store.active());
     let properties = store.describe(name)?;
 
     properties
