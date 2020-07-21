@@ -1,4 +1,4 @@
-# gctx
+# gcloud-ctx (gctx)
 
 [![Build and Test](https://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)](https://github.com/adamrodger/gcloud-ctx/actions)
 [![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)](https://github.com/adamrodger/gcloud-ctx/releases/latest)
@@ -25,9 +25,16 @@ cargo install gctx
 
 Grab the [latest binary](https://github.com/adamrodger/gcloud-ctx/releases/latest), extract it and add it to your `PATH`.
 
-### Others (e.g. `scoop` and `brew`)
+### Windows
 
-**TODO**: [Support for `scoop`](https://github.com/adamrodger/gcloud-ctx/issues/13)
+Install via [`scoop`](https://scoop.sh):
+
+```bash
+scoop bucket add adamrodger https://github.com/adamrodger/scoop-bucket
+scoop install gctx
+```
+
+### Others (e.g. `winget`, `brew`, `apt-get`, `aur`)
 
 **TODO**: [Support for `brew`](https://github.com/adamrodger/gcloud-ctx/issues/14)
 
