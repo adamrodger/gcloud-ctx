@@ -3,8 +3,6 @@
 [![Build and Test](https://github.com/adamrodger/gcloud-ctx/workflows/Build%20and%20Test/badge.svg)](https://github.com/adamrodger/gcloud-ctx/actions)
 [![Version](https://img.shields.io/github/v/tag/adamrodger/gcloud-ctx)](https://github.com/adamrodger/gcloud-ctx/releases/latest)
 
-<!-- cargo-sync-readme start -->
-
 A fast replacement for [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
 written in Rust for managing [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
@@ -77,8 +75,6 @@ gctx delete my-config
 ## show help and usage
 gctx --help
 ```
-
-<!-- cargo-sync-readme end -->
 
 ## Motivation
 

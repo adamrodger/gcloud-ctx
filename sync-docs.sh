@@ -12,9 +12,3 @@ echo -n "Syncing gcloud-ctx... "
 cargo sync-readme
 echo "Done"
 popd > /dev/null
-
-pushd gctx > /dev/null
-echo -n "Syncing gctx... "
-cargo sync-readme
-echo "Done"
-popd > /dev/null

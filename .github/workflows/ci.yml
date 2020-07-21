@@ -65,13 +65,6 @@ jobs:
           echo "gcloud-ctx README is correct"
           cd -
 
-      - name: cargo sync-readme --check (gctx)
-        run: |
-          cd gctx
-          cargo sync-readme --check
-          echo "gctx README is correct"
-          cd -
-
   test:
     name: Test Suite
     strategy:
