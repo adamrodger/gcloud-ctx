@@ -21,17 +21,16 @@ scoop bucket add adamrodger https://github.com/adamrodger/scoop-bucket
 scoop install gctx
 ```
 
-### Pre-Built Binaries
+### Pre-Built Binaries (Windows, Linux, Mac)
 
 Grab the [latest binary](https://github.com/adamrodger/gcloud-ctx/releases/latest), extract it and add it to your `PATH`.
 
-### From source
+### From Source
 
 Get the latest stable version of Rust via [`rustup`](https://rustup.rs/) and run:
 
 ```bash
 cargo install gctx
-## gctx will now be on your PATH
 ```
 
 ### Others (e.g. `winget`, `brew`, `apt-get`, `aur`)
