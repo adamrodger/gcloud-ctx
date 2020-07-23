@@ -1,7 +1,7 @@
 use assert_cmd::Command;
 use assert_fs::{prelude::*, TempDir};
 
-const CLOUDSDK_CONFIG: &'static str = "CLOUDSDK_CONFIG";
+const CLOUDSDK_CONFIG: &str = "CLOUDSDK_CONFIG";
 
 pub struct TempConfigurationStore {
     active: Option<String>,
