@@ -5,9 +5,9 @@
 #     docker run --rm -it -v /$(pwd):/app rust
 #     apt update && apt install -y asciinema nodejs npm pv
 #     npm install -g svg-term-cli
-#     cargo install gctx
 #     cd /app
-#     svg-term --command="bash doc/screencast.sh" --out doc/screencast.svg --padding=10 --height 25 --width 100 --window true
+#     cargo install --path gctx/
+#     svg-term --command="bash doc/screencast.sh" --out doc/screencast.svg --padding=10 --height 25 --width 100
 set -e
 set -u
 
