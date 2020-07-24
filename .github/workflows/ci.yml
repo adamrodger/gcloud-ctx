@@ -114,10 +114,7 @@ jobs:
           override: true
 
       - name: Setup | cargo-sync-readme
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-sync-readme --version ${{ env.CARGO_SYNC_README_VERSION }}
+        run: $(command -v cargo-sync-readme &> /dev/null) || cargo install cargo-sync-readme --version ${{ env.CARGO_SYNC_README_VERSION }}
 
       - name: Build | Check README (gcloud-ctx)
         run: |
