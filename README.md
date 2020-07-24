@@ -82,6 +82,24 @@ gctx delete my-config
 gctx --help
 ```
 
+## Output
+
+`gctx` auto-detects terminal capabilities by default and supports the [`NO_COLOR`](https://no-color.org/) and
+[`CLICOLOR`](https://bixense.com/clicolors/) standards as provided by the [`colored`](https://crates.io/crates/colored)
+crate. For example:
+
+```bash
+# will have colors if the terminal supports them
+gctx list
+
+# force no colors on output
+NO_COLOR=1 gctx list
+CLICOLOR=0 gctx list
+
+# force colors on output
+CLICOLOR_FORCE=1 gctx list
+```
+
 ## Motivation
 
 I'm often working with multiple GCP projects with a variety of different settings (e.g. default compute zone).However,

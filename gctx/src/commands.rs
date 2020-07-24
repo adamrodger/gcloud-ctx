@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use colored::*;
 use gcloud_ctx::{ConfigurationStore, ConflictAction, PropertiesBuilder};
 
 /// Used to control whether to activate a configuration after creation
@@ -23,12 +24,14 @@ impl From<bool> for PostCreation {
 
 /// List the available configurations with an indicator of the active one
 pub fn list() -> Result<()> {
-    let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    let store = ConfigurationStore::with_default_location()?;
 
     for config in store.configurations() {
-        let prefix = if store.is_active(config) { "* " } else { "  " };
-
-        println!("{}{}", prefix, config.name());
+        if store.is_active(config) {
+            println!("{} {}", "*".blue(), config.name().blue());
+        } else {
+            println!("  {}", config.name());
+        }
     }
 
     Ok(())
@@ -36,10 +39,10 @@ pub fn list() -> Result<()> {
 
 /// Activate the given configuration by name
 pub fn activate(name: &str) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    let mut store = ConfigurationStore::with_default_location()?;
     store.activate(name)?;
 
-    println!("Successfully activated '{}'", name);
+    println!("Successfully activated '{}'", name.blue());
 
     Ok(())
 }
@@ -49,11 +52,15 @@ pub fn copy(src_name: &str, dest_name: &str, conflict: ConflictAction, activate:
     let mut store = ConfigurationStore::with_default_location()?;
     store.copy(src_name, dest_name, conflict)?;
 
-    println!("Successfully copied configuration '{}' to '{}'", src_name, dest_name);
+    println!(
+        "Successfully copied configuration '{}' to '{}'",
+        src_name.yellow(),
+        dest_name.blue()
+    );
 
     if activate == PostCreation::Activate {
         store.activate(dest_name)?;
-        println!("Configuration '{}' is now active", dest_name);
+        println!("Configuration '{}' is now active", dest_name.blue());
     }
 
     Ok(())
@@ -69,7 +76,7 @@ pub fn create(
     conflict: ConflictAction,
     activate: PostCreation,
 ) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    let mut store = ConfigurationStore::with_default_location()?;
     let mut builder = PropertiesBuilder::default();
 
     builder.project(project).account(account).zone(zone);
@@ -82,11 +89,11 @@ pub fn create(
 
     store.create(name, &properties, conflict)?;
 
-    println!("Successfully created configuration '{}'", name);
+    println!("Successfully created configuration '{}'", name.blue());
 
     if activate == PostCreation::Activate {
         store.activate(name)?;
-        println!("Configuration '{}' is now active", name);
+        println!("Configuration '{}' is now active", name.blue());
     }
 
     Ok(())
@@ -94,23 +101,23 @@ pub fn create(
 
 /// Show the current activated configuration
 pub fn current() -> Result<()> {
-    let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
-    println!("{}", store.active());
+    let store = ConfigurationStore::with_default_location()?;
+    println!("{}", store.active().blue());
     Ok(())
 }
 
 /// Delete a configuration
 pub fn delete(name: &str) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    let mut store = ConfigurationStore::with_default_location()?;
     store.delete(name)?;
 
-    println!("Successfully deleted configuration '{}'", name);
+    println!("Successfully deleted configuration '{}'", name.yellow());
     Ok(())
 }
 
 /// Describe all the properties in the given configuration
 pub fn describe(name: Option<&str>) -> Result<()> {
-    let store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    let store = ConfigurationStore::with_default_location()?;
     let name = name.unwrap_or_else(|| store.active());
     let properties = store.describe(name)?;
 
@@ -123,14 +130,18 @@ pub fn describe(name: Option<&str>) -> Result<()> {
 
 /// Rename a configuration
 pub fn rename(old_name: &str, new_name: &str, conflict: ConflictAction) -> Result<()> {
-    let mut store = ConfigurationStore::with_default_location().context("Opening configuration store")?;
+    let mut store = ConfigurationStore::with_default_location()?;
     store.rename(old_name, new_name, conflict)?;
 
-    println!("Successfully renamed configuration '{}' to '{}'", old_name, new_name);
+    println!(
+        "Successfully renamed configuration '{}' to '{}'",
+        old_name.yellow(),
+        new_name.blue()
+    );
 
     if let Some(configuration) = store.find_by_name(new_name) {
         if store.is_active(configuration) {
-            println!("Configuration '{}' is now active", new_name);
+            println!("Configuration '{}' is now active", new_name.blue());
         }
     }
 
