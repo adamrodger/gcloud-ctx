@@ -1,7 +1,4 @@
 #!/bin/bash
-# Designed to be executed via svg-term from the root directory:
-# svg-term --command="bash doc/screencast.sh" --out doc/screencast.svg --padding=10
-#
 # copied and adapted from: https://raw.githubusercontent.com/sharkdp/fd/master/doc/screencast.sh
 #
 # Can be executed on Windows in Docker from Git Bash with:
@@ -10,7 +7,7 @@
 #     npm install -g svg-term-cli
 #     cargo install gctx
 #     cd /app
-#     svg-term --command="bash doc/screencast.sh" --out doc/screencast.svg --padding=10
+#     svg-term --command="bash doc/screencast.sh" --out doc/screencast.svg --padding=10 --height 25 --width 100 --window true
 set -e
 set -u
 
