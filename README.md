@@ -6,7 +6,7 @@
 A fast replacement for [`gcloud config configurations`](https://cloud.google.com/sdk/gcloud/reference/config/configurations)
 written in Rust for managing [Google Cloud Platform](https://cloud.google.com/) `gcloud` configurations easily and quickly
 
-**Note**: This project is independent and not afilliated with Google in any way
+**Note**: This project is independent and not affiliated with Google in any way
 
 ![Screencast](https://github.com/adamrodger/gcloud-ctx/blob/master/doc/screencast.svg)
 
