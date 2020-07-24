@@ -38,20 +38,25 @@ pub enum SubCommand {
 
     /// Create a new configuration
     Create {
+        /// Create a configuration interactively
+        #[clap(short, long, conflicts_with_all(&["name", "project", "account", "zone", "region", "activate", "force"]))]
+        interactive: bool,
+
         // Name of the new configuration
-        name: String,
+        #[clap(required_unless("interactive"), requires_all(&["project", "account", "zone"]))]
+        name: Option<String>,
 
         /// Setting for core/project
         #[clap(short, long)]
-        project: String,
+        project: Option<String>,
 
         /// Setting for core/account
         #[clap(short, long)]
-        account: String,
+        account: Option<String>,
 
         /// Setting for compute/zone
         #[clap(short, long)]
-        zone: String,
+        zone: Option<String>,
 
         /// Setting for compute/region
         #[clap(short, long)]

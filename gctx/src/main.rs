@@ -33,7 +33,9 @@ pub fn run(opts: Opts) -> Result<()> {
             } => {
                 commands::copy(&src_name, &dest_name, force.into(), activate.into())?;
             }
+            SubCommand::Create { interactive: true, .. } => commands::create_interactive()?,
             SubCommand::Create {
+                interactive: false,
                 name,
                 project,
                 account,
@@ -43,10 +45,11 @@ pub fn run(opts: Opts) -> Result<()> {
                 force,
             } => {
                 commands::create(
-                    &name,
-                    &project,
-                    &account,
-                    &zone,
+                    // safe to unwrap these because they are set as required in clap
+                    &name.unwrap(),
+                    &project.unwrap(),
+                    &account.unwrap(),
+                    &zone.unwrap(),
                     region.as_deref(),
                     force.into(),
                     activate.into(),

@@ -425,6 +425,71 @@ fn create_without_force_fails() {
 }
 
 #[test]
+#[ignore] // TODO: this doesn't work because assert_cmd doesn't support interactive programs
+fn create_interactive_with_activate() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create").arg("--interactive")
+       .write_stdin("bar") // name
+       .write_stdin("my-project") // project
+       .write_stdin("a.user@example.org") // account
+       .write_stdin("europe-west1-d") // zone
+       .write_stdin("us-east1") // region
+       .write_stdin("y"); // activate
+
+    cli.assert()
+        .success()
+        .stdout("Successfully created configuration 'bar'\n");
+
+    tmp.child("active_config").assert("bar");
+
+    #[rustfmt::skip]
+   tmp.child("configurations/config_bar").assert([
+       "[core]",
+       "project=my-project",
+       "account=a.user@example.org",
+       "[compute]",
+       "zone=europe-west1-d",
+       "region=us-east1",
+       ""
+   ].join("\n"));
+
+    tmp.close().unwrap();
+}
+
+#[test]
+#[ignore] // TODO: this doesn't work because assert_cmd doesn't support interactive programs
+fn create_interactive_without_activate() {
+    let (mut cli, tmp) = TempConfigurationStore::new()
+        .unwrap()
+        .with_config_activated("foo")
+        .build()
+        .unwrap();
+
+    #[rustfmt::skip]
+    cli.arg("create").arg("--interactive")
+       .write_stdin("bar") // name
+       .write_stdin("my-project") // project
+       .write_stdin("a.user@example.org") // account
+       .write_stdin("europe-west1-d") // zone
+       .write_stdin("us-east1") // region
+       .write_stdin("n"); // activate
+
+    cli.assert()
+        .success()
+        .stdout("Successfully created configuration 'bar'\n");
+
+    tmp.child("active_config").assert("foo");
+
+    tmp.close().unwrap();
+}
+
+#[test]
 fn describe_with_name_shows_supported_properties() {
     let (mut cli, tmp) = TempConfigurationStore::new()
         .unwrap()

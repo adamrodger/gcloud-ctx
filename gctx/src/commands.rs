@@ -1,5 +1,6 @@
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use colored::*;
+use dialoguer::{Confirm, Input};
 use gcloud_ctx::{ConfigurationStore, ConflictAction, PropertiesBuilder};
 
 /// Used to control whether to activate a configuration after creation
@@ -62,6 +63,61 @@ pub fn copy(src_name: &str, dest_name: &str, conflict: ConflictAction, activate:
         store.activate(dest_name)?;
         println!("Configuration '{}' is now active", dest_name.blue());
     }
+
+    Ok(())
+}
+
+/// Create a new configuration interactively
+pub fn create_interactive() -> Result<()> {
+    let store = ConfigurationStore::with_default_location()?;
+
+    let name = Input::<String>::new()
+        .with_prompt("Name".blue().to_string())
+        .interact()?;
+
+    if store.find_by_name(&name).is_some() {
+        let prompt = "A configuration with the same name already exists. Overwrite?"
+            .yellow()
+            .to_string();
+        let confirm = Confirm::new().with_prompt(prompt).default(false).interact()?;
+
+        if !confirm {
+            bail!("Operation cancelled".yellow());
+        }
+    }
+
+    let project = Input::<String>::new()
+        .with_prompt("Project".blue().to_string())
+        .interact()?;
+
+    let account = Input::<String>::new()
+        .with_prompt("Account".blue().to_string())
+        .interact()?;
+
+    let zone = Input::<String>::new()
+        .with_prompt("Zone".blue().to_string())
+        .interact()?;
+
+    let region = Input::<String>::new()
+        .with_prompt("Region (optional)".blue().to_string())
+        .allow_empty(true)
+        .interact()?;
+    let region = if region.is_empty() { None } else { Some(region) };
+
+    let activate = Confirm::new()
+        .with_prompt("Activate".blue().to_string())
+        .default(false)
+        .interact()?;
+
+    create(
+        &name,
+        &project,
+        &account,
+        &zone,
+        region.as_deref(),
+        ConflictAction::Overwrite,
+        activate.into(),
+    )?;
 
     Ok(())
 }
