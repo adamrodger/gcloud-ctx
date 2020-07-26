@@ -26,8 +26,8 @@
 //! let properties = PropertiesBuilder::default()
 //!     .project("my-project")
 //!     .account("a.user@example.org")
-//!     .zone("europe-west1-d")
-//!     .region("europe-west1")
+//!     .zone("europe-west1-d".parse()?)
+//!     .region("europe-west1".parse()?)
 //!     .build();
 //!
 //! store.create("foo", &properties, ConflictAction::Overwrite)?;
@@ -96,6 +96,14 @@ pub enum Error {
     /// The configuration name is invalid
     #[error("'{0}' is invalid. Configuration names must only contain ASCII letters and numbers")]
     InvalidName(String),
+
+    /// The region identifier is invalid
+    #[error("'{0}' is not a valid zone identifier")]
+    InvalidRegion(String),
+
+    /// The zone identifier is invalid
+    #[error("'{0}' is not a valid zone identifier")]
+    InvalidZone(String),
 
     /// General I/O error
     #[error("I/O error")]

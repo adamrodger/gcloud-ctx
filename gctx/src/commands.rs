@@ -135,10 +135,12 @@ pub fn create(
     let mut store = ConfigurationStore::with_default_location()?;
     let mut builder = PropertiesBuilder::default();
 
-    builder.project(project).account(account).zone(zone);
+    let z = gcloud_ctx::properties::Zone("test".to_owned());
+
+    builder.project(project).account(account).zone(zone.parse()?);
 
     if let Some(region) = region {
-        builder.region(region);
+        builder.region(region.parse()?);
     }
 
     let properties = builder.build();

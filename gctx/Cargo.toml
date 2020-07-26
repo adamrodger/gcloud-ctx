@@ -1,6 +1,6 @@
 [package]
 name = "gctx"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Adam Rodger <crates@adamrodger.com>"]
 edition = "2018"
 description = "A gcloud configuration management utility"
@@ -18,7 +18,7 @@ anyhow = "1"
 clap = "3.0.0-beta.1"
 colored = "2"
 dialoguer = "0.6"
-gcloud-ctx = { path = "../gcloud-ctx", version = "0.3" }
+gcloud-ctx = { path = "../gcloud-ctx", version = "0.4" }
 which = "4"
 
 [dev-dependencies]

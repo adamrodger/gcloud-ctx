@@ -24,8 +24,8 @@ use gcloud_ctx::PropertiesBuilder;
 let properties = PropertiesBuilder::default()
     .project("my-project")
     .account("a.user@example.org")
-    .zone("europe-west1-d")
-    .region("europe-west1")
+    .zone("europe-west1-d".parse()?)
+    .region("europe-west1".parse()?)
     .build();
 
 store.create("foo", &properties, ConflictAction::Overwrite)?;
