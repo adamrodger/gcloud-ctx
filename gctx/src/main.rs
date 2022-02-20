@@ -14,6 +14,8 @@ fn main() -> Result<()> {
 
 /// Run the application using the command line arguments
 pub fn run(opts: Opts) -> Result<()> {
+    set_virtual_terminal();
+
     if let Some(name) = opts.context {
         // shortcut for activate
         commands::activate(&name)?;
@@ -71,3 +73,13 @@ pub fn run(opts: Opts) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(windows)]
+fn set_virtual_terminal() {
+    // ensures colours work properly on Windows, otherwise `cargo run`
+    // has colours but the actual compiled exe just prints ANSI codes
+    colored::control::set_virtual_terminal(true).unwrap();
+}
+
+#[cfg(not(windows))]
+fn set_virtual_terminal() {}
