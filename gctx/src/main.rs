@@ -4,7 +4,7 @@ mod fzf;
 
 use anyhow::{bail, Result};
 use arguments::{Opts, SubCommand};
-use clap::Clap;
+use clap::Parser;
 
 fn main() -> Result<()> {
     let opts = Opts::parse();

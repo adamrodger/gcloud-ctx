@@ -265,7 +265,7 @@ impl ConfigurationStore {
             .find_by_name(name)
             .ok_or_else(|| Error::UnknownConfiguration(name.to_owned()))?;
 
-        if self.is_active(&configuration) {
+        if self.is_active(configuration) {
             return Err(Error::DeleteActiveConfiguration);
         }
 
@@ -299,7 +299,7 @@ impl ConfigurationStore {
             .get(old_name)
             .ok_or_else(|| Error::UnknownConfiguration(old_name.to_owned()))?;
 
-        let active = self.is_active(&src);
+        let active = self.is_active(src);
 
         if !Configuration::is_valid_name(new_name) {
             return Err(Error::InvalidName(new_name.to_owned()));

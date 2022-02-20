@@ -1,7 +1,7 @@
-use clap::{crate_version, Clap};
+use clap::{crate_version, Parser};
 
 /// gcloud configuration manager
-#[derive(Clap)]
+#[derive(Parser, Debug)]
 #[clap(version = crate_version!())]
 pub struct Opts {
     /// Switch to this context (shorthand for activate, ignores subsequent arguments)
@@ -11,7 +11,7 @@ pub struct Opts {
     pub subcmd: Option<SubCommand>,
 }
 
-#[derive(Clap)]
+#[derive(Parser, Debug)]
 pub enum SubCommand {
     /// Activate a configuration by name
     Activate {
@@ -43,7 +43,7 @@ pub enum SubCommand {
         interactive: bool,
 
         // Name of the new configuration
-        #[clap(required_unless("interactive"), requires_all(&["project", "account", "zone"]))]
+        #[clap(required_unless_present("interactive"), requires_all(&["project", "account", "zone"]))]
         name: Option<String>,
 
         /// Setting for core/project

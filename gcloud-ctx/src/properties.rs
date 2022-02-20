@@ -31,7 +31,7 @@ impl Properties {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 /// Supported properties in the core section
 struct CoreProperties {
     /// `core/project` setting
@@ -43,16 +43,7 @@ struct CoreProperties {
     account: Option<String>,
 }
 
-impl Default for CoreProperties {
-    fn default() -> Self {
-        Self {
-            account: None,
-            project: None,
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 /// Supported properties in the compute section
 struct ComputeProperties {
     /// `compute/zone` setting - default compute zone
@@ -64,16 +55,7 @@ struct ComputeProperties {
     region: Option<String>,
 }
 
-impl Default for ComputeProperties {
-    fn default() -> Self {
-        Self {
-            zone: None,
-            region: None,
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Default)]
 /// Properties builder
 pub struct PropertiesBuilder {
     /// core/project setting
@@ -87,17 +69,6 @@ pub struct PropertiesBuilder {
 
     /// compute/region setting
     region: Option<String>,
-}
-
-impl Default for PropertiesBuilder {
-    fn default() -> Self {
-        Self {
-            project: None,
-            account: None,
-            zone: None,
-            region: None,
-        }
-    }
 }
 
 impl PropertiesBuilder {
