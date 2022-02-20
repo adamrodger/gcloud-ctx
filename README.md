@@ -8,7 +8,7 @@ written in Rust for managing [Google Cloud Platform](https://cloud.google.com/) 
 
 **Note**: This project is independent and not affiliated with Google in any way
 
-![Screencast](https://github.com/adamrodger/gcloud-ctx/blob/master/doc/screencast.svg)
+![Screencast](https://github.com/adamrodger/gcloud-ctx/blob/main/doc/screencast.svg)
 
 ## Installation
 
