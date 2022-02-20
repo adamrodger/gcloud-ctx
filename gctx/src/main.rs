@@ -2,7 +2,7 @@ mod arguments;
 mod commands;
 mod fzf;
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 use arguments::{Opts, SubCommand};
 use clap::Parser;
 
@@ -22,10 +22,9 @@ pub fn run(opts: Opts) -> Result<()> {
         return Ok(());
     } else if let Some(subcmd) = opts.subcmd {
         match subcmd {
-            SubCommand::Activate { name } => match (name, fzf::is_fzf_installed()) {
-                (Some(name), _) => commands::activate(&name)?,
-                (None, true) => commands::activate(&fzf::fuzzy_find_config()?)?,
-                (None, false) => bail!("You must supply a configuration to activate"),
+            SubCommand::Activate { name } => match name {
+                Some(name) => commands::activate(&name)?,
+                None => commands::activate(&fzf::fuzzy_find_config()?)?,
             },
             SubCommand::Copy {
                 src_name,

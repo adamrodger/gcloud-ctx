@@ -1,6 +1,6 @@
 [package]
 name = "gctx"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Adam Rodger <crates@adamrodger.com>"]
 edition = "2021"
 description = "A gcloud configuration management utility"
@@ -19,7 +19,6 @@ clap = { version = "3", features = ["cargo", "derive"] }
 colored = "2"
 dialoguer = "0.10"
 gcloud-ctx = { path = "../gcloud-ctx", version = "0.4" }
-which = "4"
 
 [dev-dependencies]
 assert_cmd = "2"

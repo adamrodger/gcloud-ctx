@@ -31,8 +31,7 @@ impl TempConfigurationStore {
         self.configs
             .iter()
             .map(|name| format!("configurations/config_{}", name))
-            .map(|config| dir.child(config).touch())
-            .collect::<Result<(), _>>()?;
+            .try_for_each(|config| dir.child(config).touch())?;
 
         Ok((command, dir))
     }

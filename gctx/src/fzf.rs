@@ -1,34 +1,21 @@
 use anyhow::{bail, Result};
-use std::process::{Command, Stdio};
-use std::str;
-use which::which;
+use dialoguer::console::Term;
+use dialoguer::theme::ColorfulTheme;
+use dialoguer::Select;
+use gcloud_ctx::ConfigurationStore;
 
-/// Check if `fzf` is found in the user's PATH
-pub fn is_fzf_installed() -> bool {
-    which("fzf").is_ok()
-}
-
-/// Find a configuration to activate using `fzf` for fuzzy searching
+/// Find a configuration to activate using by giving the user an interactive prompt
 pub fn fuzzy_find_config() -> Result<String> {
-    let child = Command::new("fzf")
-        .arg("--ansi")
-        .arg("--no-preview")
-        .env(
-            "FZF_DEFAULT_COMMAND",
-            format!("{} list", std::env::current_exe().unwrap().display()),
-        )
-        .stdout(Stdio::piped())
-        .spawn()?;
+    let store = ConfigurationStore::with_default_location()?;
 
-    let output = child.wait_with_output()?;
-    let choice = str::from_utf8(&output.stdout)?
-        .trim_start_matches('*')
-        .trim()
-        .to_owned();
+    let items = store.configurations().iter().map(|&c| c.name()).collect::<Vec<_>>();
+    let selection = Select::with_theme(&ColorfulTheme::default())
+        .items(&items)
+        .default(0)
+        .interact_on_opt(&Term::stderr())?;
 
-    if choice.is_empty() {
-        bail!("No configuration selected")
-    } else {
-        Ok(choice)
+    match selection {
+        Some(index) => Ok(items[index].to_owned()),
+        None => bail!("No configuration selected"),
     }
 }
