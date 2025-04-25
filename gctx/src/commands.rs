@@ -4,7 +4,7 @@ use dialoguer::{Confirm, Input};
 use gcloud_ctx::{ConfigurationStore, ConflictAction, PropertiesBuilder};
 
 /// Used to control whether to activate a configuration after creation
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PostCreation {
     /// Ignore the new configuration
     Noop,
@@ -16,9 +16,9 @@ pub enum PostCreation {
 impl From<bool> for PostCreation {
     fn from(value: bool) -> Self {
         if value {
-            PostCreation::Activate
+            Self::Activate
         } else {
-            PostCreation::Noop
+            Self::Noop
         }
     }
 }

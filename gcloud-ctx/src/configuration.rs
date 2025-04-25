@@ -221,7 +221,7 @@ impl ConfigurationStore {
         }
 
         // just copy the file on disk so that any properties which aren't directly supported are maintained
-        let filename = self.configurations_path.join(format!("config_{}", dest_name));
+        let filename = self.configurations_path.join(format!("config_{dest_name}"));
         fs::copy(&src.path, &filename)?;
 
         let dest = Configuration {
@@ -244,7 +244,7 @@ impl ConfigurationStore {
             return Err(Error::ExistingConfiguration(name.to_owned()));
         }
 
-        let filename = self.configurations_path.join(format!("config_{}", name));
+        let filename = self.configurations_path.join(format!("config_{name}"));
         let file = File::create(&filename)?;
         properties.to_writer(file)?;
 
@@ -311,7 +311,7 @@ impl ConfigurationStore {
 
         let new_value = Configuration {
             name: new_name.to_owned(),
-            path: src.path.with_file_name(format!("config_{}", new_name)),
+            path: src.path.with_file_name(format!("config_{new_name}")),
         };
 
         std::fs::rename(&src.path, &new_value.path)?;

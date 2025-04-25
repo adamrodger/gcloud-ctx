@@ -81,4 +81,4 @@ fn set_virtual_terminal() {
 }
 
 #[cfg(not(windows))]
-fn set_virtual_terminal() {}
+const fn set_virtual_terminal() {}

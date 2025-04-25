@@ -9,7 +9,7 @@ pub struct TempConfigurationStore {
 }
 
 impl TempConfigurationStore {
-    pub fn new() -> Result<Self, anyhow::Error> {
+    pub const fn new() -> Result<Self, anyhow::Error> {
         Ok(Self {
             active: None,
             configs: Vec::new(),
@@ -30,7 +30,7 @@ impl TempConfigurationStore {
 
         self.configs
             .iter()
-            .map(|name| format!("configurations/config_{}", name))
+            .map(|name| format!("configurations/config_{name}"))
             .try_for_each(|config| dir.child(config).touch())?;
 
         Ok((command, dir))
