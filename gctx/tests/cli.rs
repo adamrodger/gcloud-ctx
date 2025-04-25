@@ -100,13 +100,11 @@ fn list_shows_configurations() {
     cli.arg("list");
 
     #[rustfmt::skip]
-    let expected = vec![
-        "  bar",
+    let expected = ["  bar",
         "* baz",
         "  foo",
         "  qux",
-        "",
-    ].join("\n");
+        ""].join("\n");
 
     cli.assert().success().stdout(expected);
 
@@ -149,11 +147,9 @@ fn rename_active_configuration_succeeds() {
     cli.arg("rename").arg("bar").arg("renamed");
 
     #[rustfmt::skip]
-    cli.assert().success().stdout(vec![
-        "Successfully renamed configuration 'bar' to 'renamed'",
+    cli.assert().success().stdout(["Successfully renamed configuration 'bar' to 'renamed'",
         "Configuration 'renamed' is now active",
-        "",
-    ].join("\n"));
+        ""].join("\n"));
 
     tmp.child("active_config").assert("renamed");
     tmp.child("configurations/config_bar")
@@ -176,11 +172,9 @@ fn rename_to_existing_name_with_force_overwrites_existing() {
     cli.arg("rename").arg("bar").arg("foo").arg("--force");
 
     #[rustfmt::skip]
-    cli.assert().success().stdout(vec![
-        "Successfully renamed configuration 'bar' to 'foo'",
+    cli.assert().success().stdout(["Successfully renamed configuration 'bar' to 'foo'",
         "Configuration 'foo' is now active",
-        "",
-    ].join("\n"));
+        ""].join("\n"));
 
     tmp.child("active_config").assert("foo");
     tmp.child("configurations/config_bar")
@@ -266,10 +260,10 @@ fn create_sets_properties_successfully() {
     #[rustfmt::skip]
     cli.arg("create")
        .arg("new-config")
-       .args(&["--project", "my-project"])
-       .args(&["--account", "a.user@example.org"])
-       .args(&["--zone", "europe-west1-d"])
-       .args(&["--region", "us-east1"]);
+       .args(["--project", "my-project"])
+       .args(["--account", "a.user@example.org"])
+       .args(["--zone", "europe-west1-d"])
+       .args(["--region", "us-east1"]);
 
     cli.assert()
         .success()
@@ -300,10 +294,10 @@ fn create_without_activate_maintains_previous_activation() {
     #[rustfmt::skip]
     cli.arg("create")
        .arg("new-config")
-       .args(&["--project", "my-project"])
-       .args(&["--account", "a.user@example.org"])
-       .args(&["--zone", "europe-west1-d"])
-       .args(&["--region", "us-east1"]);
+       .args(["--project", "my-project"])
+       .args(["--account", "a.user@example.org"])
+       .args(["--zone", "europe-west1-d"])
+       .args(["--region", "us-east1"]);
 
     cli.assert()
         .success()
@@ -325,10 +319,10 @@ fn create_with_activate_activates_new_configuration() {
     #[rustfmt::skip]
     cli.arg("create")
        .arg("new-config")
-       .args(&["--project", "my-project"])
-       .args(&["--account", "a.user@example.org"])
-       .args(&["--zone", "europe-west1-d"])
-       .args(&["--region", "us-east1"])
+       .args(["--project", "my-project"])
+       .args(["--account", "a.user@example.org"])
+       .args(["--zone", "europe-west1-d"])
+       .args(["--region", "us-east1"])
        .arg("--activate");
 
     cli.assert().success().stdout(
@@ -352,10 +346,10 @@ fn create_with_force_succeeds() {
     #[rustfmt::skip]
     cli.arg("create")
        .arg("foo")
-       .args(&["--project", "my-project"])
-       .args(&["--account", "a.user@example.org"])
-       .args(&["--zone", "europe-west1-d"])
-       .args(&["--region", "us-east1"])
+       .args(["--project", "my-project"])
+       .args(["--account", "a.user@example.org"])
+       .args(["--zone", "europe-west1-d"])
+       .args(["--region", "us-east1"])
        .arg("--force");
 
     cli.assert()
@@ -389,10 +383,10 @@ fn create_with_invalid_name_fails() {
     #[rustfmt::skip]
     cli.arg("create")
        .arg("invalid_name")
-       .args(&["--project", "my-project"])
-       .args(&["--account", "a.user@example.org"])
-       .args(&["--zone", "europe-west1-d"])
-       .args(&["--region", "us-east1"]);
+       .args(["--project", "my-project"])
+       .args(["--account", "a.user@example.org"])
+       .args(["--zone", "europe-west1-d"])
+       .args(["--region", "us-east1"]);
 
     cli.assert()
         .failure()
@@ -412,10 +406,10 @@ fn create_without_force_fails() {
     #[rustfmt::skip]
     cli.arg("create")
        .arg("foo")
-       .args(&["--project", "my-project"])
-       .args(&["--account", "a.user@example.org"])
-       .args(&["--zone", "europe-west1-d"])
-       .args(&["--region", "us-east1"]);
+       .args(["--project", "my-project"])
+       .args(["--account", "a.user@example.org"])
+       .args(["--zone", "europe-west1-d"])
+       .args(["--region", "us-east1"]);
 
     cli.assert()
         .failure()

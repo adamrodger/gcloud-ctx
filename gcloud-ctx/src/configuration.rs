@@ -270,7 +270,7 @@ impl ConfigurationStore {
         }
 
         let path = &configuration.path;
-        fs::remove_file(&path)?;
+        fs::remove_file(path)?;
 
         self.configurations.remove(name);
 
@@ -329,7 +329,7 @@ impl ConfigurationStore {
 
     /// Find a configuration by name
     pub fn find_by_name(&self, name: &str) -> Option<&Configuration> {
-        self.configurations.get(&name.to_owned())
+        self.configurations.get(name)
     }
 }
 
