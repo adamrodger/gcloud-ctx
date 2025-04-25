@@ -54,7 +54,7 @@ impl PartialEq for Configuration {
 impl Eq for Configuration {}
 
 /// Action to perform when a naming conflict occurs
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ConflictAction {
     /// Abort the operation
     Abort,
@@ -66,9 +66,9 @@ pub enum ConflictAction {
 impl From<bool> for ConflictAction {
     fn from(value: bool) -> Self {
         if value {
-            ConflictAction::Overwrite
+            Self::Overwrite
         } else {
-            ConflictAction::Abort
+            Self::Abort
         }
     }
 }
@@ -166,7 +166,7 @@ impl ConfigurationStore {
         let active = gcloud_path.join("active_config");
         let active = fs::read_to_string(active)?;
 
-        Ok(ConfigurationStore {
+        Ok(Self {
             location: gcloud_path,
             configurations_path,
             configurations,
