@@ -73,7 +73,7 @@ pub struct PropertiesBuilder {
 
 impl PropertiesBuilder {
     /// Build the properties
-    pub fn build(&self) -> Properties {
+    #[must_use] pub fn build(&self) -> Properties {
         let core = if self.project.is_some() || self.account.is_some() {
             Some(CoreProperties {
                 project: self.project.clone(),

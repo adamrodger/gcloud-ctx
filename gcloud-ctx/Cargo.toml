@@ -15,7 +15,6 @@ categories = ["config"]
 
 [dependencies]
 dirs = "6"
-lazy_static = "1"
 regex = "1"
 serde = { version = "1", features = ["derive"] }
 serde_ini = "0.2"

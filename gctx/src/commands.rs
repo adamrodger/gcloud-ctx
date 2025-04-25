@@ -1,5 +1,5 @@
 use anyhow::{bail, Context, Result};
-use colored::*;
+use colored::Colorize;
 use dialoguer::{Confirm, Input};
 use gcloud_ctx::{ConfigurationStore, ConflictAction, PropertiesBuilder};
 

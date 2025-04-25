@@ -1,12 +1,9 @@
 use crate::{properties::Properties, Error, Result};
 use fs::File;
-use lazy_static::lazy_static;
 use regex::Regex;
-use std::{cmp::Ordering, collections::HashMap, fs, io::BufReader, path::PathBuf};
+use std::{cmp::Ordering, collections::HashMap, fs, io::BufReader, path::PathBuf, sync::LazyLock};
 
-lazy_static! {
-    static ref NAME_REGEX: Regex = Regex::new("^[a-z][-a-z0-9]*$").unwrap();
-}
+static NAME_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new("^[a-z][-a-z0-9]*$").unwrap());
 
 #[derive(Debug, Clone)]
 /// Represents a gcloud named configuration
@@ -20,6 +17,7 @@ pub struct Configuration {
 
 impl Configuration {
     /// Name of the configuration
+    #[must_use]
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -28,6 +26,7 @@ impl Configuration {
     ///
     /// Names must start with a lowercase ASCII character
     /// then zero or more ASCII alphanumerics and hyphens
+    #[must_use]
     pub fn is_valid_name(name: &str) -> bool {
         NAME_REGEX.is_match(name)
     }
@@ -140,10 +139,7 @@ impl ConfigurationStore {
 
             let file = file.unwrap();
             let name = file.file_name();
-            let name = match name.to_str() {
-                Some(name) => name,
-                None => continue, // ignore files that aren't valid utf8
-            };
+            let Some(name) = name.to_str() else { continue };
             let name = name.trim_start_matches("config_");
 
             if !Configuration::is_valid_name(name) {
@@ -175,11 +171,13 @@ impl ConfigurationStore {
     }
 
     /// Get the name of the currently active configuration
+    #[must_use]
     pub fn active(&self) -> &str {
         &self.active
     }
 
     /// Get the collection of currently available configurations
+    #[must_use]
     pub fn configurations(&self) -> Vec<&Configuration> {
         let mut value: Vec<&Configuration> = self.configurations.values().collect();
         value.sort();
@@ -187,6 +185,7 @@ impl ConfigurationStore {
     }
 
     /// Check if the given configuration is active
+    #[must_use]
     pub fn is_active(&self, configuration: &Configuration) -> bool {
         configuration.name == self.active
     }
@@ -200,7 +199,7 @@ impl ConfigurationStore {
         let path = self.location.join("active_config");
         std::fs::write(path, &configuration.name)?;
 
-        self.active = configuration.name.to_owned();
+        self.active = configuration.name.clone();
 
         Ok(())
     }
@@ -328,6 +327,7 @@ impl ConfigurationStore {
     }
 
     /// Find a configuration by name
+    #[must_use]
     pub fn find_by_name(&self, name: &str) -> Option<&Configuration> {
         self.configurations.get(name)
     }
