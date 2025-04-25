@@ -15,12 +15,12 @@ categories = ["command-line-utilities", "config"]
 
 [dependencies]
 anyhow = "1"
-clap = { version = "3", features = ["cargo", "derive"] }
-colored = "2"
-dialoguer = "0.10"
+clap = { version = "4", features = ["cargo", "derive"] }
+colored = "3"
+dialoguer = "0.11"
 gcloud-ctx = { path = "../gcloud-ctx", version = "0.4" }
 
 [dev-dependencies]
 assert_cmd = "2"
 assert_fs = "1"
-predicates = "2"
+predicates = "3"
