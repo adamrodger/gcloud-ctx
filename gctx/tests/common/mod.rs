@@ -1,4 +1,4 @@
-use assert_cmd::Command;
+use assert_cmd::{Command, cargo::cargo_bin_cmd};
 use assert_fs::{prelude::*, TempDir};
 
 const CLOUDSDK_CONFIG: &str = "CLOUDSDK_CONFIG";
@@ -21,7 +21,7 @@ impl TempConfigurationStore {
 
         std::fs::create_dir(dir.path().join("configurations"))?;
 
-        let mut command = Command::cargo_bin("gctx")?;
+        let mut command = cargo_bin_cmd!("gctx");
         command.env(CLOUDSDK_CONFIG, dir.path());
 
         if let Some(active) = &self.active {
