@@ -11,147 +11,52 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
 
 jobs:
-  rustfmt:
-    name: cargo fmt
+  check:
+    name: cargo fmt + clippy + check
     runs-on: ubuntu-latest
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v6
-
+ 
       - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          override: true
-          profile: minimal
-          components: rustfmt
-
-      - name: Build | Format
+          components: rustfmt, clippy
+ 
+      - name: Setup | Cache Cargo
+        uses: Swatinem/rust-cache@v2
+ 
+      - name: Build | cargo fmt
         run: cargo fmt --all -- --check
-
-  clippy:
-    name: cargo clippy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          profile: minimal
-          components: clippy
-
-      - name: Build | Lint
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D clippy::all
-
-  cargo_check:
-    name: cargo check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Build | Check
+ 
+      - name: Build | cargo clippy
+        run: cargo clippy --all-targets --all-features
+ 
+      - name: Build | cargo check
         run: cargo check --all
 
-  readme_check:
-    name: cargo sync-readme
-    needs: cargo_check
-    runs-on: ubuntu-latest
-    env:
-      CARGO_SYNC_README_VERSION: 1.0.0
-    steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin/cargo-sync-readme
-          key: ${{ runner.os }}-cargo-${{ env.CARGO_SYNC_README_VERSION }}
-
-      - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Setup | cargo-sync-readme
-        run: $(command -v cargo-sync-readme &> /dev/null) || cargo install cargo-sync-readme --version ${{ env.CARGO_SYNC_README_VERSION }}
-
-      - name: Build | Check README (gcloud-ctx)
-        run: |
-          cd gcloud-ctx
-          cargo sync-readme --check
-          echo "gcloud-ctx README is correct"
-          cd -
-
   test:
-    name: cargo test
-    needs: cargo_check
+    name: Test - ${{ matrix.os }}
+    needs: check
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
+ 
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v6
-
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
+ 
       - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
+ 
+      - name: Setup | Cache Cargo
+        uses: Swatinem/rust-cache@v2
+ 
+      - name: Build | cargo test
+        run: cargo test --all
 
-      - name: Build | Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test

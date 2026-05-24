@@ -18,79 +18,114 @@ jobs:
           - x86_64-apple-darwin
           - x86_64-pc-windows-msvc
         include:
+          # Linux x86_64 (glibc)
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            name: gctx-x86_64-unknown-linux-gnu.tar.gz
+            archive: gctx-x86_64-unknown-linux-gnu.tar.gz
+ 
+          # Linux x86_64 (musl / fully-static)
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            name: gctx-x86_64-unknown-linux-musl.tar.gz
+            archive: gctx-x86_64-unknown-linux-musl.tar.gz
+            apt: musl-tools
+ 
+          # Linux aarch64 (musl / fully-static)
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            archive: gctx-aarch64-unknown-linux-musl.tar.gz
+            cross: true
+ 
+          # macOS x86_64 (Intel)
           - target: x86_64-apple-darwin
-            os: macOS-latest
-            name: gctx-x86_64-apple-darwin.tar.gz
+            os: macos-latest
+            archive: gctx-x86_64-apple-darwin.tar.gz
+ 
+          # macOS aarch64 (Apple Silicon)
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive: gctx-aarch64-apple-darwin.tar.gz
+ 
+          # Windows x86_64 (MSVC)
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            name: gctx-x86_64-pc-windows-msvc.zip
+            archive: gctx-x86_64-pc-windows-msvc.zip
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Setup | Checkout
         uses: actions/checkout@v6
 
-      - name: Setup | Cache Cargo
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Setup | Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          override: true
-          profile: minimal
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
 
-      - name: Setup | musl tools
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        run: sudo apt install -y musl-tools
+      - name: Setup | Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
 
-      - name: Build | Build
+      - name: Setup | Apt
+        if: matrix.apt != ''
+        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.apt }}
+
+      - name: Setup | Cross
+        if: matrix.cross == true
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+
+      - name: Build | Native
+        if: matrix.cross != true
         run: cargo build --release --target ${{ matrix.target }}
+ 
+      - name: Build | Cross
+        if: matrix.cross == true
+        run: cross build --release --target ${{ matrix.target }}
 
       - name: Post Setup | Prepare artifacts [Windows]
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          cd target/${{ matrix.target }}/release
-          strip gctx.exe
-          7z a ../../../${{ matrix.name }} gctx.exe
-          cd -
+          $bin = "target\${{ matrix.target }}\release\gctx.exe"
+          Compress-Archive -Path $bin -DestinationPath "${{ matrix.archive }}"
 
       - name: Post Setup | Prepare artifacts [-nix]
         if: matrix.os != 'windows-latest'
         run: |
-          cd target/${{ matrix.target }}/release
-          strip gctx
-          tar czvf ../../../${{ matrix.name }} gctx
-          cd -
+          bin=target/${{ matrix.target }}/release/gctx
+          strip "$bin" || true          # strip may not support every cross target
+          tar czf "${{ matrix.archive }}" -C "$(dirname "$bin")" "$(basename "$bin")"
 
       - name: Post Setup | Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.name }}
-          path: ${{ matrix.name }}
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+          retention-days: 1
 
   release:
     name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Setup | Download Artifacts
         uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true
+          path: artifacts
+
+      - name: Setup | Checksums
+        working-directory: artifacts
+        run: sha256sum * > SHA256SUMS.txt
 
       - name: Build | Publish
         uses: softprops/action-gh-release@v3
         with:
-          files: "**/*"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            artifacts/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true
